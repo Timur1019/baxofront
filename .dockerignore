@@ -5,3 +5,5 @@ dist
 .env
 .env.*
 !.env.example
+
+#VITE_API_URL=https://baxolashbek.onrender.com
