@@ -1,0 +1,27 @@
+.app-content-width {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  min-height: calc(100vh - 64px);
+  background: var(--color-bg);
+}
+
+.container {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.page {
+  background-color: var(--color-bg);
+}
+
+.page--with-padding {
+  padding: 24px 0 40px;
+}
+
+.page--centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+}

@@ -1,0 +1,47 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  backdrop-filter: blur(4px);
+}
+
+.modal-dialog {
+  max-width: 520px;
+  width: 100%;
+}
+
+.modal-content {
+  border-radius: 20px;
+  border: 1px solid var(--color-border-light);
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.45);
+  background: linear-gradient(135deg, var(--color-bg-card), var(--color-bg));
+}
+
+.client-modal-dialog {
+  max-width: 920px;
+}
+
+.client-modal-content {
+  padding: 22px 22px 18px !important;
+}
+
+.modal-content .form-label {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.modal-content .form-control,
+.modal-content .form-select {
+  border-radius: var(--radius-md);
+  border-color: var(--color-border);
+}
+
+.modal-content .form-control:focus,
+.modal-content .form-select:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent-light);
+}

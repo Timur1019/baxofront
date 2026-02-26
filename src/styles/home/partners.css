@@ -1,0 +1,35 @@
+@import './variables.css';
+
+.partners {
+  padding: 3rem 0;
+  background: var(--home-white);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.partners__title {
+  text-align: center;
+  color: var(--home-gray);
+  margin-bottom: 2rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.partners__grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
+  flex-wrap: wrap;
+  opacity: 0.7;
+}
+
+.partners__logo {
+  filter: grayscale(1);
+  transition: all 0.3s ease;
+}
+
+.partners__logo:hover {
+  filter: grayscale(0);
+  opacity: 1;
+}

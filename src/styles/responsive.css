@@ -1,0 +1,40 @@
+@media (max-width: 768px) {
+  .main-header__inner {
+    height: auto;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .main-header__left {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .main-header__nav {
+    margin-top: 8px;
+  }
+
+  .hero__content {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-layout {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+
+  .dashboard__bottom {
+    grid-template-columns: 1fr;
+  }
+
+  .home-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .section--cta__inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -1,0 +1,28 @@
+/* Главная страница — сборка стилей */
+@import './variables.css';
+@import './section-common.css';
+@import './buttons.css';
+@import './hero.css';
+@import './partners.css';
+@import './features.css';
+@import './steps.css';
+@import './testimonials.css';
+@import './faq.css';
+@import './cta.css';
+@import './footer.css';
+
+/* Общие медиа для секций */
+@media (max-width: 768px) {
+  .home-section {
+    padding: 4rem 0;
+  }
+  .home-section__title {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-container {
+    padding: 0 1rem;
+  }
+}

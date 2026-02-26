@@ -1,0 +1,46 @@
+/* Общие стили секций главной */
+.home-section {
+  padding: 6rem 0;
+}
+
+.home-section--muted {
+  background-color: var(--home-light);
+}
+
+.home-section__header {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 4rem;
+}
+
+.home-section__badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+  color: var(--home-primary);
+  border-radius: 2rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.home-section__title {
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+  color: var(--home-dark);
+}
+
+.home-section__subtitle {
+  font-size: 1.25rem;
+  color: var(--home-gray);
+  line-height: 1.6;
+}
+
+.home-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  width: 100%;
+}

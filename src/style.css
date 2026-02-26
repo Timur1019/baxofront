@@ -1,0 +1,15 @@
+/* Сборка стилей — модульная структура */
+@import './styles/base.css';
+@import './styles/layout.css';
+@import './styles/header.css';
+@import './styles/hero.css';
+@import './styles/section.css';
+@import './styles/home.css';
+@import './styles/login.css';
+@import './styles/admin.css';
+@import './styles/client-layout.css';
+@import './styles/dashboard.css';
+@import './styles/modals.css';
+@import './styles/client/requests-list.css';
+@import './styles/client/requests-modal.css';
+@import './styles/responsive.css';
