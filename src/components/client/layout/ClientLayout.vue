@@ -43,6 +43,11 @@ const logout = () => {
 
 <template>
   <div class="client-layout" :class="{ 'client-layout--sidebar-closed': !sidebarOpen }">
+    <div
+      v-if="sidebarOpen"
+      class="client-layout__overlay"
+      @click="sidebarOpen = false"
+    ></div>
     <aside class="client-layout__sidebar">
       <div class="client-layout__sidebar-head">
         <div class="client-layout__brand-inner">

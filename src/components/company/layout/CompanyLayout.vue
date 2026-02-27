@@ -45,6 +45,11 @@ const menuItems = [
 
 <template>
   <div class="company-layout" :class="{ 'company-layout--sidebar-closed': !sidebarOpen }">
+    <div
+      v-if="sidebarOpen"
+      class="company-layout__overlay"
+      @click="sidebarOpen = false"
+    ></div>
     <aside class="company-layout__sidebar">
       <div class="company-layout__brand">
         <div class="company-layout__brand-inner">
@@ -136,6 +141,14 @@ const menuItems = [
   min-width: 0;
 }
 
+ .company-layout__overlay {
+   position: fixed;
+   inset: 0;
+   background: rgba(0, 0, 0, 0.4);
+   z-index: 90;
+   display: none;
+ }
+
 /* Topbar base styles in topbar.css */
 .company-layout__topbar {
   gap: 1rem;
@@ -173,6 +186,10 @@ const menuItems = [
   }
   .company-layout--sidebar-closed .company-layout__sidebar {
     transform: translateX(-100%);
+  }
+
+  .company-layout__overlay {
+    display: block;
   }
 }
 </style>

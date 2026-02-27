@@ -167,3 +167,16 @@
   font-size: 12px;
   color: var(--color-text-secondary);
 }
+
+/* Мобильная адаптация для company dashboard */
+@media (max-width: 768px) {
+  .dashboard__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .dashboard__bottom {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
