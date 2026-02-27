@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '../../../i18n/useI18n'
 import { clearAuth } from '../../../utils/auth'
+import appLogo from '../../../log.png'
 
 const route = useRoute()
 const router = useRouter()
@@ -48,7 +49,7 @@ const menuItems = [
       <div class="company-layout__brand">
         <div class="company-layout__brand-inner">
           <router-link to="/" class="company-layout__logo">
-            <i class="bi bi-journal-bookmark-fill company-layout__logo-icon"></i>
+            <img :src="appLogo" alt="Baholash" class="company-layout__logo-img" />
           </router-link>
           <div class="company-layout__brand-text">
             <span class="company-layout__brand-title">Baholash</span>

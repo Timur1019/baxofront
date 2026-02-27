@@ -1,5 +1,6 @@
 <script setup>
 import { useI18n } from '../../i18n/useI18n'
+import whiteLogo from '../../log.png'
 
 const { t } = useI18n()
 </script>
@@ -8,7 +9,9 @@ const { t } = useI18n()
   <footer class="home-footer">
     <div class="container home-footer__container">
       <div class="home-footer__info">
-        <h3 class="home-footer__logo">Baholash</h3>
+        <div class="home-footer__logo">
+          <img :src="whiteLogo" alt="Baholash" class="home-footer__logo-img" />
+        </div>
         <p class="home-footer__description">
           {{ t('footer.description') }}
         </p>

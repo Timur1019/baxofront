@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '../../../i18n/useI18n'
 import { clearAuth } from '../../../utils/auth'
+import appLogo from '../../../log.png'
 
 const route = useRoute()
 const router = useRouter()
@@ -46,7 +47,7 @@ const logout = () => {
       <div class="client-layout__sidebar-head">
         <div class="client-layout__brand-inner">
           <div class="client-layout__logo">
-            <i class="bi bi-journal-bookmark-fill"></i>
+            <img :src="appLogo" alt="Baholash" class="client-layout__logo-img" />
           </div>
           <h2 class="client-layout__title">{{ t('client.sidebarTitle') }}</h2>
         </div>

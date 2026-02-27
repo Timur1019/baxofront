@@ -3,6 +3,7 @@ import { computed, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '../../../i18n/useI18n'
 import { clearAuth } from '../../../utils/auth'
+import appLogo from '../../../log.png'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -119,7 +120,7 @@ const getAvatarColor = () => {
       <div class="admin-layout__brand">
         <div class="admin-layout__logo-wrapper">
           <div class="admin-layout__logo">
-            <i class="bi bi-journal-bookmark-fill admin-layout__logo-icon"></i>
+            <img :src="appLogo" alt="Baholash" class="admin-layout__logo-img" />
           </div>
           <div class="admin-layout__brand-info">
             <span class="admin-layout__brand-title">Baholash</span>

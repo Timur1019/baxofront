@@ -3,6 +3,7 @@ import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '../../i18n/useI18n'
 import { clearAuth } from '../../utils/auth'
+import logo from '../../log.png'
 
 const route = useRoute()
 const router = useRouter()
@@ -75,7 +76,9 @@ const userRoleLabel = computed(() => {
     <div class="header__container">
       <div class="header__left">
         <router-link to="/" class="header__brand" @click="closeMobileMenu">
-          <span class="header__brand-logo">{{ t('app.name').charAt(0) }}</span>
+          <span class="header__brand-logo">
+            <img :src="logo" alt="Baholash" class="header__brand-logo-img" />
+          </span>
           <div class="header__brand-text">
             <span class="header__brand-name">{{ t('app.name') }}</span>
             <span class="header__brand-subtitle">{{ t('app.subtitle') }}</span>
@@ -250,12 +253,16 @@ const userRoleLabel = computed(() => {
   height: 40px;
   border-radius: 8px;
   background: var(--color-primary);
-  color: #fff;
-  font-size: 1.25rem;
-  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+}
+
+.header__brand-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .header__brand-text {

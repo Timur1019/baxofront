@@ -56,18 +56,21 @@
   width: 36px;
   height: 36px;
   border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  background: var(--color-bg-card);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #f9fafb;
   flex-shrink: 0;
   text-decoration: none;
+  overflow: hidden;
 }
 
-.admin-layout__logo-icon,
-.company-layout__logo-icon {
-  font-size: 1.125rem;
+.admin-layout__logo-img,
+.client-layout__logo-img,
+.company-layout__logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .admin-layout__brand-title,
