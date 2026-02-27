@@ -1,0 +1,57 @@
+/* Единая шапка (topbar) для Admin, Client, Company — Bootstrap-совместимый стиль */
+@import './variables.css';
+
+/* Общие стили для всех топбаров */
+.admin-layout__topbar,
+.client-layout__topbar,
+.company-layout__topbar {
+  height: 52px;
+  min-height: 52px;
+  padding: 0 1.5rem;
+  background-color: var(--color-bg-card) !important;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Burger кнопка — одинаковая во всех layouts */
+.admin-layout__burger,
+.client-layout__burger,
+.company-layout__burger {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: 1.25rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.admin-layout__burger:hover,
+.client-layout__burger:hover,
+.company-layout__burger:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text);
+}
+
+/* Заголовок страницы */
+.client-layout__pagetitle,
+.company-layout__pagetitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+}

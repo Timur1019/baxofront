@@ -84,28 +84,14 @@
   padding: 0;
 }
 
-.dashboard__table-wrapper {
+.dashboard__card--table .table-responsive {
   max-height: 260px;
   overflow: auto;
 }
 
-.dashboard__table {
-  margin-bottom: 0;
-  font-size: 13px;
-  color: var(--color-text);
-}
-
-.dashboard__table th,
-.dashboard__table td {
-  vertical-align: middle;
-  color: var(--color-text);
-  background-color: var(--color-bg-card);
-}
-
-.dashboard__table thead th {
+.dashboard__card--table .table thead th {
   position: sticky;
   top: 0;
-  background-color: var(--color-bg);
   z-index: 1;
 }
 
@@ -140,8 +126,8 @@
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 999px;
-  background: linear-gradient(135deg, var(--color-accent), #ec4899);
-  color: #f9fafb;
+  background: var(--color-primary);
+  color: #fff;
 }
 
 .dashboard__server-metric {

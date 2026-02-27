@@ -137,14 +137,14 @@ const handleDeleteAll = async () => {
             <input v-model="onlyRecent" type="checkbox" />
             <span>{{ t('admin.contactRequestsFilterOnlyNew') }}</span>
           </label>
-          <button type="button" class="btn btn--ghost" @click="resetFilters">
+          <button type="button" class="btn btn-outline-secondary" @click="resetFilters">
             {{ t('admin.contactRequestsResetFilters') }}
           </button>
         </div>
 
         <button
             type="button"
-            class="btn btn--danger"
+            class="btn btn-danger"
             :disabled="deletingAll || isLoading || !requests.length"
             @click="handleDeleteAll"
         >
@@ -155,11 +155,7 @@ const handleDeleteAll = async () => {
 
     <!-- Ошибка -->
     <div v-if="errorMessage" class="alert alert--danger">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="8" x2="12" y2="12"/>
-        <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
-      </svg>
+      <i class="bi bi-exclamation-circle-fill"></i>
       <span>{{ errorMessage }}</span>
       <button class="alert__close" @click="errorMessage = ''">×</button>
     </div>
@@ -174,7 +170,7 @@ const handleDeleteAll = async () => {
     <div v-else class="content">
       <div class="card">
         <div class="table-responsive">
-          <table class="table">
+          <table class="table table-bordered table-hover">
             <thead>
             <tr>
               <th>{{ t('admin.date') }}</th>
@@ -191,17 +187,14 @@ const handleDeleteAll = async () => {
             <tr v-if="filteredRequests.length === 0" class="table__row--empty">
               <td colspan="7">
                 <div class="empty-state">
-                  <svg class="empty-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-                  </svg>
+                  <i class="bi bi-inbox empty-state__icon"></i>
                   <p class="empty-state__text">
                     {{ requests.length === 0 ? t('admin.contactRequestsEmpty') : t('admin.contactRequestsNoResultsByFilters') }}
                   </p>
                   <button
                     v-if="requests.length > 0"
                     type="button"
-                    class="btn btn--ghost btn--sm empty-state__reset"
+                    class="btn btn-outline-secondary btn-sm empty-state__reset"
                     @click="resetFilters"
                   >
                     {{ t('admin.contactRequestsResetFilters') }}
@@ -253,7 +246,7 @@ const handleDeleteAll = async () => {
               <td class="table__cell--actions">
                 <button
                     type="button"
-                    class="btn btn--text btn--danger"
+                    class="btn btn-danger btn-sm"
                     :disabled="deletingId === r.id"
                     @click="handleDeleteOne(r.id)"
                 >
@@ -424,50 +417,6 @@ const handleDeleteAll = async () => {
   border-color: var(--color-border-dark);
 }
 
-.btn--danger {
-  background: var(--color-danger);
-  color: white;
-}
-
-.btn--danger:hover:not(:disabled) {
-  background: var(--color-danger-dark);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.btn--text {
-  background: transparent;
-  border: none;
-  padding: var(--spacing-1) var(--spacing-2);
-  color: var(--color-primary);
-  font-weight: 500;
-}
-
-.btn--text:hover:not(:disabled) {
-  background: var(--color-primary-bg);
-  color: var(--color-primary-dark);
-}
-
-.btn--text.btn--danger {
-  color: var(--color-danger);
-}
-
-.btn--text.btn--danger:hover:not(:disabled) {
-  background: var(--color-danger-bg);
-  color: var(--color-danger-dark);
-}
-
-.btn--ghost {
-  background: var(--color-bg);
-  color: var(--color-text);
-  border-color: var(--color-border);
-}
-
-.btn--ghost:hover:not(:disabled) {
-  background: var(--color-bg-hover);
-  border-color: var(--color-border-dark);
-}
-
 .btn--sm {
   padding: var(--spacing-1) var(--spacing-3);
   font-size: 0.8125rem;
@@ -512,71 +461,6 @@ const handleDeleteAll = async () => {
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
-}
-
-/* === Таблица === */
-.table-responsive {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
-}
-
-.table th {
-  text-align: left;
-  padding: var(--spacing-3) var(--spacing-4);
-  font-weight: 600;
-  color: var(--color-text-light);
-  border-bottom: 2px solid var(--color-border);
-  white-space: nowrap;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  font-size: 0.75rem;
-  background: var(--color-bg);
-}
-
-.table td {
-  padding: var(--spacing-3) var(--spacing-4);
-  border-bottom: 1px solid var(--color-border-light);
-  color: var(--color-text);
-  vertical-align: middle;
-}
-
-.table__row {
-  transition: background-color var(--transition-fast) var(--ease);
-}
-
-.table__row:hover {
-  background: var(--color-bg-hover);
-}
-
-.table__row--empty td {
-  padding: 0;
-}
-
-.table__cell--nowrap {
-  white-space: nowrap;
-}
-
-.table__cell--message {
-  max-width: 300px;
-  white-space: pre-wrap;
-  word-break: break-word;
-  line-height: 1.5;
-  color: var(--color-text);
-}
-
-.table__cell--actions-head {
-  width: 1%;
-}
-
-.table__cell--actions {
-  text-align: right;
-  white-space: nowrap;
 }
 
 /* === Пустое состояние === */
@@ -733,14 +617,6 @@ const handleDeleteAll = async () => {
     justify-content: flex-start;
   }
 
-  .table th,
-  .table td {
-    padding: var(--spacing-2) var(--spacing-3);
-  }
-
-  .table__cell--message {
-    max-width: 200px;
-  }
 }
 
 @media (max-width: 640px) {
@@ -762,69 +638,6 @@ const handleDeleteAll = async () => {
     align-items: center;
   }
 
-  /* Мобильная версия таблицы - карточки */
-  .table,
-  .table thead,
-  .table tbody,
-  .table th,
-  .table td,
-  .table tr {
-    display: block;
-  }
-
-  .table thead {
-    display: none;
-  }
-
-  .table tr {
-    margin-bottom: var(--spacing-4);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-4);
-    background: var(--color-bg-card);
-    box-shadow: var(--shadow-sm);
-  }
-
-  .table td {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: var(--spacing-2) 0;
-    border-bottom: 1px dashed var(--color-border-light);
-  }
-
-  .table td:last-child {
-    border-bottom: none;
-  }
-
-  .table td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: var(--color-text-light);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    margin-right: var(--spacing-4);
-    min-width: 90px;
-  }
-
-  .table__cell--message {
-    max-width: none;
-    white-space: normal;
-  }
-
-  .badge {
-    margin-left: auto;
-  }
-
-  .table__cell--actions {
-    text-align: left;
-  }
-
-  .table__cell--actions .btn {
-    margin-left: auto;
-  }
-
   .page__title {
     font-size: 1.5rem;
   }
@@ -835,10 +648,6 @@ const handleDeleteAll = async () => {
 }
 
 @media (max-width: 480px) {
-  .table td::before {
-    min-width: 70px;
-  }
-
   .empty-state__icon {
     width: 48px;
     height: 48px;

@@ -14,8 +14,8 @@ const submit = async () => {
   loading.value = true
   error.value = ''
   try {
-    const created = await createEvaluationRequest({ objectDescription: form.value.objectDescription || null })
-    router.push({ name: 'client-request-detail', params: { id: created.id } })
+    await createEvaluationRequest({ objectDescription: form.value.objectDescription || null })
+    router.push({ name: 'client-requests' })
   } catch (e) {
     error.value = e.response?.data?.message || e.message || t('client.createError')
   } finally {

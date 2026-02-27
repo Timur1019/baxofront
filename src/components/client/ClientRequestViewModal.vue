@@ -1,5 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { getAuth } from '../../utils/auth'
 import { useI18n } from '../../i18n/useI18n'
 import { useStatusLabel } from '../../composables/useStatusLabel'
 import { useFormatting } from '../../composables/useFormatting'
@@ -9,16 +11,19 @@ import {
   downloadReport,
   downloadDocument,
   exportEvaluationRequestToWord,
+  deleteEvaluationRequest,
 } from '../../api/evaluationApi'
 import LocationMapView from '../shared/LocationMapView.vue'
+import { useReportQr } from '../../composables/useReportQr'
 
 const props = defineProps({
   requestId: { type: String, default: null },
   show: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'deleted'])
 
+const router = useRouter()
 const { t } = useI18n()
 const { statusLabel } = useStatusLabel()
 const { formatDate, formatSum } = useFormatting()
@@ -27,8 +32,13 @@ const { triggerDownload } = useFileDownload()
 const detail = ref(null)
 const loading = ref(false)
 const downloadError = ref('')
+const deletingRequest = ref(false)
+const { qrUrl, qrLoading: qrLoadingState } = useReportQr(() => props.requestId)
 
 const hasLocation = ref(false)
+
+const canEdit = () => getAuth().canEditEvaluationRequests !== false
+const canDelete = () => getAuth().canDeleteEvaluationRequests !== false
 
 async function load() {
   if (!props.requestId) return
@@ -89,6 +99,28 @@ function close() {
   emit('close')
 }
 
+function onEdit() {
+  if (!detail.value?.id) return
+  close()
+  router.push({ name: 'client-request-edit', params: { id: detail.value.id } })
+}
+
+async function onDelete() {
+  if (!detail.value?.id) return
+  if (!confirm(t('client.deleteRequestConfirm') || 'Удалить заявку? Это действие нельзя отменить.')) return
+  deletingRequest.value = true
+  downloadError.value = ''
+  try {
+    await deleteEvaluationRequest(detail.value.id)
+    emit('deleted')
+    close()
+  } catch {
+    downloadError.value = t('client.deleteRequestError') || 'Не удалось удалить заявку'
+  } finally {
+    deletingRequest.value = false
+  }
+}
+
 </script>
 
 <template>
@@ -101,6 +133,15 @@ function close() {
           </div>
           <div class="view-modal__header-actions">
             <button
+              v-if="canEdit() && detail?.id && !loading"
+              type="button"
+              class="view-modal__header-btn view-modal__header-btn--primary"
+              @click="onEdit"
+            >
+              <i class="bi bi-pencil me-1"></i>
+              {{ t('client.edit') || 'Редактировать' }}
+            </button>
+            <button
               v-if="detail?.id && !loading"
               type="button"
               class="view-modal__header-btn"
@@ -108,10 +149,19 @@ function close() {
             >
               {{ t('client.downloadGeneralInfo') }}
             </button>
+            <button
+              v-if="canDelete() && detail?.id && !loading"
+              type="button"
+              class="view-modal__header-btn view-modal__header-btn--danger"
+              :disabled="deletingRequest"
+              @click="onDelete"
+            >
+              <span v-if="deletingRequest" class="view-modal__spinner view-modal__spinner--sm me-1"></span>
+              <i v-else class="bi bi-trash me-1"></i>
+              {{ deletingRequest ? t('client.loading') : (t('client.deleteRequest') || 'Удалить') }}
+            </button>
             <button type="button" class="view-modal__close" @click="close" aria-label="Close">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 6L6 18M6 6l12 12"/>
-              </svg>
+              <i class="bi bi-x-lg"></i>
             </button>
           </div>
         </div>
@@ -176,7 +226,7 @@ function close() {
             <div class="view-modal__cards-row">
               <div class="view-modal__section view-modal__section--card">
                 <h3 class="view-modal__section-title">
-                  <span class="view-modal__section-icon">📎</span>
+                  <i class="bi bi-paperclip view-modal__section-icon"></i>
                   {{ t('client.viewModalCompanyDocs') }}
                 </h3>
                 <ul v-if="detail.documents?.length" class="view-modal__doc-list">
@@ -192,7 +242,7 @@ function close() {
 
               <div class="view-modal__section view-modal__section--card">
                 <h3 class="view-modal__section-title">
-                  <span class="view-modal__section-icon">📋</span>
+                  <i class="bi bi-clipboard view-modal__section-icon"></i>
                   {{ t('client.reportTitle') }}
                 </h3>
                 <p v-if="downloadError" class="view-modal__error">{{ downloadError }}</p>
@@ -205,6 +255,21 @@ function close() {
                 >
                   {{ t('client.downloadReport') }}
                 </button>
+              </div>
+
+              <div class="view-modal__section view-modal__section--card view-modal__section--qr">
+                <h3 class="view-modal__section-title">
+                  <i class="bi bi-qr-code view-modal__section-icon"></i>
+                  {{ t('client.qrReportTitle') || 'QR-код для просмотра PDF' }}
+                </h3>
+                <div v-if="qrLoadingState" class="view-modal__qr-loading">
+                  <span class="view-modal__spinner view-modal__spinner--sm"></span>
+                  <span>{{ t('client.loading') }}</span>
+                </div>
+                <div v-else-if="qrUrl" class="view-modal__qr-block">
+                  <img :src="qrUrl" alt="QR-код" class="view-modal__qr-image" />
+                  <p class="view-modal__qr-hint">{{ t('client.qrReportHint') || 'Сканируйте для просмотра PDF на телефоне' }}</p>
+                </div>
               </div>
             </div>
 
@@ -254,16 +319,17 @@ function close() {
 }
 
 .view-modal {
-  background: #fff;
-  border-radius: 20px;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
   width: 100%;
-  max-width: 720px;
+  max-width: 900px;
   max-height: 90vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 32px 64px -12px rgba(26, 26, 46, 0.25), 0 0 0 1px rgba(111, 66, 193, 0.06);
-  animation: viewModalSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--color-border-light);
+  animation: viewModalSlideUp 0.3s ease;
 }
 
 @keyframes viewModalSlideUp {
@@ -280,10 +346,12 @@ function close() {
 .view-modal__header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem 2rem;
-  background: linear-gradient(135deg, #6f42c1 0%, #5a32a8 100%);
-  color: #fff;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--color-bg-card);
+  border-bottom: 1px solid var(--color-border-light);
+  flex-wrap: wrap;
 }
 
 .view-modal__header-content {
@@ -293,73 +361,99 @@ function close() {
 }
 
 .view-modal__icon {
-  font-size: 1.5rem;
-  opacity: 0.95;
+  font-size: 1.25rem;
+  color: var(--color-text-muted);
 }
 
 .view-modal__title {
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0;
-  letter-spacing: -0.02em;
+  color: var(--color-text);
+  flex: 1;
+  min-width: 120px;
 }
 
 .view-modal__header-actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
 .view-modal__header-btn {
-  padding: 0.4rem 0.9rem;
-  border-radius: 8px;
-  font-size: 0.8125rem;
-  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
-  transition: all 0.2s ease;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  color: var(--color-text);
+  transition: background 0.2s, border-color 0.2s;
   white-space: nowrap;
 }
 
 .view-modal__header-btn:hover {
-  background: rgba(255, 255, 255, 0.35);
-  border-color: rgba(255, 255, 255, 0.7);
+  background: var(--color-bg-hover);
+  border-color: var(--color-text-muted);
 }
 
-.view-modal__header-btn--outline {
-  background: transparent;
-  border-color: rgba(255, 255, 255, 0.6);
+.view-modal__header-btn--primary {
+  border-color: var(--bs-primary);
+  background: var(--bs-primary);
+  color: #fff;
 }
 
-.view-modal__header-btn--outline:hover {
-  background: rgba(255, 255, 255, 0.15);
+.view-modal__header-btn--primary:hover {
+  background: #0d6efd;
+  border-color: #0d6efd;
+  color: #fff;
+}
+
+.view-modal__header-btn--danger {
+  border-color: var(--bs-danger);
+  background: #fff;
+  color: var(--bs-danger);
+}
+
+.view-modal__header-btn--danger:hover:not(:disabled) {
+  background: var(--bs-danger);
+  color: #fff;
+  border-color: var(--bs-danger);
+}
+
+.view-modal__header-btn--danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .view-modal__close {
   width: 40px;
   height: 40px;
-  border: none;
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  color: var(--color-text-muted);
   cursor: pointer;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
-  margin-left: 0.25rem;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 
-.view-modal__close svg {
-  width: 20px;
-  height: 20px;
+.view-modal__close i {
+  font-size: 1.125rem;
 }
 
 .view-modal__close:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: rotate(90deg);
+  background: var(--color-bg-hover);
+  color: var(--color-text);
+  border-color: var(--color-border);
 }
 
 .view-modal__body {
@@ -386,7 +480,7 @@ function close() {
   width: 32px;
   height: 32px;
   border: 3px solid #e5e7eb;
-  border-top-color: #6f42c1;
+  border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: viewModalSpin 0.8s linear infinite;
 }
@@ -420,17 +514,19 @@ function close() {
 }
 
 .view-modal__block-title {
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 700;
-  color: #000;
+  color: var(--color-text);
   margin: 0 0 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid var(--color-border);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .view-modal__divider {
-  height: 1px;
-  background: #e5e7eb;
+  height: 2px;
+  background: var(--color-border);
   margin: 1.5rem 0;
 }
 
@@ -447,10 +543,10 @@ function close() {
 }
 
 .view-modal__section--card {
-  background: #f8fafc;
-  border-radius: 12px;
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
   padding: 1.25rem 1.5rem;
-  border: 2px solid #e2e8f0;
+  border: 1px solid var(--color-border);
 }
 
 .view-modal__section--card .view-modal__section-title {
@@ -460,10 +556,9 @@ function close() {
 
 .view-modal__section--location {
   padding: 1.5rem;
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  margin-top: 0.5rem;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
 }
 
 .view-modal__section--location .view-modal__section-title {
@@ -495,11 +590,14 @@ function close() {
 }
 
 .view-modal__row {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0;
+  padding: 0.625rem 0;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .view-modal__row:last-child {
-  margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .view-modal__label {
@@ -547,39 +645,42 @@ function close() {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.6rem 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 0.625rem 0;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .view-modal__doc-item:last-child {
   border-bottom: none;
+  padding-bottom: 0;
 }
 
 .view-modal__link {
   background: none;
   border: none;
-  color: #6f42c1;
+  color: var(--color-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 500;
   padding: 0.25rem 0.5rem;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   transition: background 0.2s, color 0.2s;
 }
 
 .view-modal__link:hover {
-  background: rgba(111, 66, 193, 0.1);
-  color: #5a32a8;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
 }
 
 .view-modal__muted { color: #9ca3af; font-size: 0.9rem; margin: 0; }
 .view-modal__muted--block {
   padding: 2rem;
   text-align: center;
-  background: #fff;
-  border: 2px dashed #cbd5e1;
-  border-radius: 10px;
-  color: #64748b;
+  background: var(--color-bg-card);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
   font-weight: 500;
 }
 .view-modal__error { color: #b91c1c; font-size: 0.85rem; margin: 0 0 0.5rem; }
@@ -623,37 +724,36 @@ function close() {
 }
 
 .view-modal__btn--primary {
-  background: linear-gradient(135deg, #6f42c1 0%, #5a32a8 100%);
+  background: var(--color-text);
   color: #fff;
-  box-shadow: 0 2px 8px rgba(111, 66, 193, 0.3);
+  border: 1px solid var(--color-text);
 }
 
 .view-modal__btn--primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(111, 66, 193, 0.4);
+  background: var(--color-text-secondary);
+  border-color: var(--color-text-secondary);
 }
 
 .view-modal__btn--secondary {
-  background: #fff;
-  color: #4b5563;
-  border: 2px solid #e5e7eb;
+  background: var(--color-bg-card);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
 }
 
 .view-modal__btn--secondary:hover {
-  background: #f9fafb;
-  border-color: #6f42c1;
-  color: #6f42c1;
+  background: var(--color-bg-hover);
+  border-color: var(--color-text-muted);
 }
 
 .view-modal__btn--outline {
-  background: #fff;
-  color: #5a32a8;
-  border: 2px solid #6f42c1;
+  background: var(--color-bg-card);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
 }
 
 .view-modal__btn--outline:hover {
-  background: #f5f0fa;
-  border-color: #5a32a8;
+  background: var(--color-bg-hover);
+  border-color: var(--color-text-muted);
 }
 
 .view-modal__report-actions {
@@ -661,5 +761,45 @@ function close() {
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 0.75rem;
+}
+
+.view-modal__qr-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.view-modal__spinner--sm {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
+.view-modal__qr-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.view-modal__qr-image {
+  width: 256px;
+  height: 256px;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.view-modal__qr-hint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  line-height: 1.4;
 }
 </style>

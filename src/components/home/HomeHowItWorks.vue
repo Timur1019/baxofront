@@ -90,7 +90,7 @@ const steps = computed(() => [
 }
 
 .process__container {
-  max-width: 1280px;
+  max-width: var(--content-max-width, 1570px);
   margin: 0 auto;
   padding: 0 40px;
 }
@@ -105,7 +105,7 @@ const steps = computed(() => [
 .process__badge {
   display: inline-block;
   padding: 6px 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   color: white;
   border-radius: 100px;
   font-size: 13px;
@@ -162,7 +162,7 @@ const steps = computed(() => [
 .process-step__digit {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   color: white;
   border-radius: 50%;
   display: flex;
@@ -178,7 +178,7 @@ const steps = computed(() => [
 .process-step__line {
   width: 2px;
   height: 80px;
-  background: linear-gradient(to bottom, #667eea, #764ba2);
+  background: linear-gradient(to bottom, var(--color-primary), var(--color-primary-hover));
   margin: 8px 0;
   opacity: 0.3;
 }
@@ -236,7 +236,7 @@ const steps = computed(() => [
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   opacity: 0.1;
   z-index: 1;
 }

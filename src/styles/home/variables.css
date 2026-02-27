@@ -1,12 +1,11 @@
-/* Переменные для главной страницы */
+/* Алиасы для главной — используют единую палитру из variables.css */
 :root {
-  --home-primary: #2563eb;
-  --home-primary-dark: #1d4ed8;
-  --home-secondary: #7c3aed;
-  --home-accent: #f59e0b;
-  --home-dark: #0f172a;
-  --home-gray: #475569;
-  --home-light: #f8fafc;
-  --home-white: #ffffff;
-  --home-gradient: linear-gradient(135deg, var(--home-primary) 0%, var(--home-secondary) 100%);
+  --home-primary: var(--color-primary);
+  --home-primary-dark: var(--color-primary-dark);
+  --home-secondary: var(--color-primary-hover);
+  --home-dark: var(--color-dark);
+  --home-gray: var(--color-text-muted);
+  --home-light: var(--color-bg);
+  --home-white: var(--color-white);
+  --home-gradient: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
 }

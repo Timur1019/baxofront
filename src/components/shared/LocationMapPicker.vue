@@ -237,7 +237,7 @@ watch(
 <template>
   <div class="location-map-picker">
     <div v-if="!readonly" class="location-map-picker__hint" :class="{ error: addressError }">
-      <span v-if="addressError">⚠️ Не удалось определить адрес. Координаты сохранены.</span>
+      <span v-if="addressError"><i class="bi bi-exclamation-triangle-fill me-1"></i>Не удалось определить адрес. Координаты сохранены.</span>
       <span v-else>{{ hint }}</span>
     </div>
     <div v-if="addressLoading" class="location-map-picker__loading">
@@ -270,7 +270,7 @@ watch(
   align-items: center;
   gap: 0.5rem;
   font-size: 0.85rem;
-  color: #6f42c1;
+  color: var(--color-primary);
   font-weight: 500;
 }
 
@@ -278,7 +278,7 @@ watch(
   width: 16px;
   height: 16px;
   border: 2px solid #e2e8f0;
-  border-top-color: #6f42c1;
+  border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
 }
@@ -301,7 +301,7 @@ watch(
 }
 
 .location-map-picker__map:hover:not(.readonly) {
-  border-color: #6f42c1;
+  border-color: var(--color-primary);
 }
 
 .location-map-picker__map.readonly {

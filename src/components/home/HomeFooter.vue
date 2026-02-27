@@ -6,7 +6,7 @@ const { t } = useI18n()
 
 <template>
   <footer class="home-footer">
-    <div class="home-container home-footer__container">
+    <div class="container home-footer__container">
       <div class="home-footer__info">
         <h3 class="home-footer__logo">Baholash</h3>
         <p class="home-footer__description">
@@ -23,37 +23,37 @@ const { t } = useI18n()
         <div class="home-footer__links-column">
           <h4 class="home-footer__links-title">{{ t('footer.product') }}</h4>
           <ul class="home-footer__links-list">
-            <li><router-link to="/features">{{ t('footer.possibilities') }}</router-link></li>
-            <li><router-link to="/pricing">{{ t('footer.pricing') }}</router-link></li>
-            <li><router-link to="/demo">{{ t('footer.demo') }}</router-link></li>
+            <li><a href="#">{{ t('footer.possibilities') }}</a></li>
+            <li><a href="#">{{ t('footer.pricing') }}</a></li>
+            <li><a href="#">{{ t('footer.demo') }}</a></li>
           </ul>
         </div>
 
         <div class="home-footer__links-column">
           <h4 class="home-footer__links-title">{{ t('footer.company') }}</h4>
           <ul class="home-footer__links-list">
-            <li><router-link to="/about">{{ t('footer.about') }}</router-link></li>
-            <li><router-link to="/blog">{{ t('footer.blog') }}</router-link></li>
-            <li><router-link to="/careers">{{ t('footer.careers') }}</router-link></li>
+            <li><a href="#">{{ t('footer.about') }}</a></li>
+            <li><a href="#">{{ t('footer.blog') }}</a></li>
+            <li><a href="#">{{ t('footer.careers') }}</a></li>
           </ul>
         </div>
 
         <div class="home-footer__links-column">
           <h4 class="home-footer__links-title">{{ t('footer.support') }}</h4>
           <ul class="home-footer__links-list">
-            <li><router-link to="/help">{{ t('footer.help') }}</router-link></li>
-            <li><router-link to="/contacts">{{ t('footer.contacts') }}</router-link></li>
-            <li><router-link to="/docs">{{ t('footer.docs') }}</router-link></li>
+            <li><a href="#">{{ t('footer.help') }}</a></li>
+            <li><a href="#">{{ t('footer.contacts') }}</a></li>
+            <li><a href="#">{{ t('footer.docs') }}</a></li>
           </ul>
         </div>
       </div>
     </div>
 
-    <div class="home-container home-footer__bottom">
+    <div class="container home-footer__bottom">
       <p class="home-footer__copyright">{{ t('footer.copyright') }}</p>
       <div class="home-footer__legal">
-        <router-link to="/privacy">{{ t('footer.privacy') }}</router-link>
-        <router-link to="/terms">{{ t('footer.terms') }}</router-link>
+        <a href="#">{{ t('footer.privacy') }}</a>
+        <a href="#">{{ t('footer.terms') }}</a>
       </div>
     </div>
   </footer>

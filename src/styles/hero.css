@@ -72,11 +72,11 @@
 }
 
 .hero__card {
-  background: linear-gradient(135deg, var(--color-accent), #764ba2);
+  background: var(--color-primary);
   border-radius: var(--radius-xl);
   padding: 20px 24px;
-  color: #f9fafb;
-  box-shadow: 0 24px 60px rgba(55, 65, 81, 0.6);
+  color: #fff;
+  box-shadow: var(--shadow-md);
 }
 
 .hero__card-title {

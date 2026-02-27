@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useI18n } from '../i18n/useI18n'
 import { submitContact } from '../api/contactApi'
+import HomeFooter from '../components/home/HomeFooter.vue'
 
 const { t } = useI18n()
 
@@ -67,9 +68,7 @@ const onSubmit = async () => {
           <!-- Телефон -->
           <div class="contacts-info__card">
             <div class="contacts-info__icon-wrapper">
-              <svg class="contacts-info__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M22 16.92v3a1.999 1.999 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8 10a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.574 2.81.7A2 2 0 0 1 22 16.92z" stroke-width="2"/>
-              </svg>
+              <i class="bi bi-telephone-fill contacts-info__icon"></i>
             </div>
             <h3 class="contacts-info__title">{{ t('contacts.phone') }}</h3>
             <p class="contacts-info__text">+998 (71) 000-00-00</p>
@@ -80,10 +79,7 @@ const onSubmit = async () => {
           <!-- Email -->
           <div class="contacts-info__card">
             <div class="contacts-info__icon-wrapper">
-              <svg class="contacts-info__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke-width="2"/>
-                <polyline points="22,6 12,13 2,6" stroke-width="2"/>
-              </svg>
+              <i class="bi bi-envelope-fill contacts-info__icon"></i>
             </div>
             <h3 class="contacts-info__title">{{ t('contacts.email') }}</h3>
             <p class="contacts-info__text">support@baholash.uz</p>
@@ -94,10 +90,7 @@ const onSubmit = async () => {
           <!-- Офис -->
           <div class="contacts-info__card">
             <div class="contacts-info__icon-wrapper">
-              <svg class="contacts-info__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke-width="2"/>
-                <circle cx="12" cy="10" r="3" stroke-width="2"/>
-              </svg>
+              <i class="bi bi-geo-alt-fill contacts-info__icon"></i>
             </div>
             <h3 class="contacts-info__title">{{ t('contacts.office') }}</h3>
             <p class="contacts-info__text">{{ t('contacts.officeAddress') }}</p>
@@ -108,13 +101,7 @@ const onSubmit = async () => {
           <!-- Реквизиты -->
           <div class="contacts-info__card">
             <div class="contacts-info__icon-wrapper">
-              <svg class="contacts-info__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2" stroke-width="2"/>
-                <line x1="16" y1="21" x2="16" y2="11" stroke-width="2"/>
-                <line x1="8" y1="21" x2="8" y2="11" stroke-width="2"/>
-                <line x1="2" y1="15" x2="22" y2="15" stroke-width="2"/>
-                <line x1="12" y1="3" x2="12" y2="7" stroke-width="2"/>
-              </svg>
+              <i class="bi bi-building contacts-info__icon"></i>
             </div>
             <h3 class="contacts-info__title">{{ t('contacts.requisites') }}</h3>
             <p class="contacts-info__text">{{ t('contacts.requisitesInn') }}</p>
@@ -140,10 +127,7 @@ const onSubmit = async () => {
               <!-- Сообщение об успехе -->
               <transition name="slide">
                 <div v-if="submitSuccess" class="contacts-form__success">
-                  <svg class="contacts-form__success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke-width="2"/>
-                    <polyline points="22 4 12 14.01 9 11.01" stroke-width="2"/>
-                  </svg>
+                  <i class="bi bi-check-circle-fill contacts-form__success-icon"></i>
                   <div>
                     {{ t('contacts.successMessage') }}
                   </div>
@@ -227,10 +211,8 @@ const onSubmit = async () => {
                   :disabled="isSubmitting"
               >
                 <span v-if="!isSubmitting">{{ t('contacts.submit') }}</span>
-                <span v-else class="contacts-form__submit-loading">
-                  <svg class="contacts-form__spinner" viewBox="0 0 50 50">
-                    <circle class="contacts-form__spinner-path" cx="25" cy="25" r="20" fill="none" stroke-width="5"/>
-                  </svg>
+                <span v-else class="contacts-form__submit-loading d-inline-flex align-items-center gap-2">
+                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                   {{ t('contacts.sending') }}
                 </span>
               </button>
@@ -272,7 +254,7 @@ const onSubmit = async () => {
                   </div>
                 </li>
                 <li class="contacts-map__card-item">
-                  <span class="contacts-map__card-icon">🚗</span>
+                  <i class="bi bi-geo-alt-fill contacts-map__card-icon"></i>
                   <div>
                     <strong>{{ t('contacts.directions.taxiLabel') }}</strong> {{ t('contacts.directions.taxi') }}
                   </div>
@@ -318,42 +300,14 @@ const onSubmit = async () => {
       </div>
     </section>
 
-    <!-- Часто задаваемые вопросы -->
-    <section class="contacts-faq">
-      <div class="container">
-        <h2 class="contacts-faq__title">{{ t('contacts.faq.title') }}</h2>
-        <p class="contacts-faq__subtitle">{{ t('contacts.faq.subtitle') }}</p>
-
-        <div class="contacts-faq__grid">
-          <div class="contacts-faq__item">
-            <h3 class="contacts-faq__question">{{ t('contacts.faq.q1') }}</h3>
-            <p class="contacts-faq__answer">{{ t('contacts.faq.a1') }}</p>
-          </div>
-
-          <div class="contacts-faq__item">
-            <h3 class="contacts-faq__question">{{ t('contacts.faq.q2') }}</h3>
-            <p class="contacts-faq__answer">{{ t('contacts.faq.a2') }}</p>
-          </div>
-
-          <div class="contacts-faq__item">
-            <h3 class="contacts-faq__question">{{ t('contacts.faq.q3') }}</h3>
-            <p class="contacts-faq__answer">{{ t('contacts.faq.a3') }}</p>
-          </div>
-
-          <div class="contacts-faq__item">
-            <h3 class="contacts-faq__question">{{ t('contacts.faq.q4') }}</h3>
-            <p class="contacts-faq__answer">{{ t('contacts.faq.a4') }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
+    <HomeFooter />
   </main>
 </template>
 
 <style scoped>
 /* === Hero секция === */
 .contacts-hero {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   color: white;
   padding: 5rem 0;
   text-align: center;
@@ -375,7 +329,7 @@ const onSubmit = async () => {
 /* === Контактная информация === */
 .contacts-info {
   padding: 5rem 0;
-  background: white;
+  background: var(--color-bg-card);
 }
 
 .contacts-info__grid {
@@ -385,12 +339,12 @@ const onSubmit = async () => {
 }
 
 .contacts-info__card {
-  background: #f8fafc;
+  background: var(--color-bg-muted);
   padding: 2rem;
   border-radius: 1.5rem;
   text-align: center;
   transition: all 0.3s ease;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   position: relative;
   overflow: hidden;
 }
@@ -402,7 +356,7 @@ const onSubmit = async () => {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   transform: scaleX(0);
   transition: transform 0.3s ease;
 }
@@ -419,7 +373,7 @@ const onSubmit = async () => {
 .contacts-info__icon-wrapper {
   width: 70px;
   height: 70px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  background: var(--color-primary-light);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -430,31 +384,31 @@ const onSubmit = async () => {
 .contacts-info__icon {
   width: 32px;
   height: 32px;
-  color: #667eea;
+  color: var(--color-primary);
 }
 
 .contacts-info__title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-text);
   margin-bottom: 0.5rem;
 }
 
 .contacts-info__text {
   font-size: 1rem;
-  color: #475569;
+  color: var(--color-text-secondary);
   margin-bottom: 0.25rem;
 }
 
 .contacts-info__subtext {
   font-size: 0.875rem;
-  color: #94a3b8;
+  color: var(--color-text-muted);
   margin-bottom: 1rem;
 }
 
 .contacts-info__link {
   display: inline-block;
-  color: #667eea;
+  color: var(--color-primary);
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 500;
@@ -463,13 +417,13 @@ const onSubmit = async () => {
 
 .contacts-info__link:hover {
   transform: translateX(5px);
-  color: #764ba2;
+  color: var(--color-primary);
 }
 
 /* === Основная секция (форма + карта) === */
 .contacts-main {
-  padding: 3rem 0 5rem;
-  background: #f8fafc;
+  padding: 5rem 0;
+  background: var(--color-bg-muted);
 }
 
 .contacts-main__grid {
@@ -480,7 +434,7 @@ const onSubmit = async () => {
 
 /* Форма */
 .contacts-form {
-  background: white;
+  background: var(--color-bg-card);
   padding: 3rem;
   border-radius: 2rem;
   box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
@@ -489,12 +443,12 @@ const onSubmit = async () => {
 .contacts-form__title {
   font-size: 2rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--color-text);
   margin-bottom: 0.5rem;
 }
 
 .contacts-form__subtitle {
-  color: #475569;
+  color: var(--color-text-secondary);
   margin-bottom: 2rem;
 }
 
@@ -503,10 +457,10 @@ const onSubmit = async () => {
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: #f0fdf4;
-  border: 1px solid #86efac;
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success);
   border-radius: 0.75rem;
-  color: #166534;
+  color: var(--color-success);
   margin-bottom: 1.5rem;
 }
 
@@ -518,10 +472,10 @@ const onSubmit = async () => {
 
 .contacts-form__error {
   padding: 1rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error);
   border-radius: 0.75rem;
-  color: #b91c1c;
+  color: var(--color-error);
   margin-bottom: 1.5rem;
   font-size: 0.9375rem;
 }
@@ -541,7 +495,7 @@ const onSubmit = async () => {
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #0f172a;
+  color: var(--color-text);
   margin-bottom: 0.5rem;
 }
 
@@ -550,20 +504,20 @@ const onSubmit = async () => {
 .contacts-form__textarea {
   width: 100%;
   padding: 0.875rem 1rem;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--color-border);
   border-radius: 0.75rem;
   font-size: 1rem;
   transition: all 0.3s ease;
-  background: #f8fafc;
+  background: var(--color-bg-muted);
 }
 
 .contacts-form__input:focus,
 .contacts-form__select:focus,
 .contacts-form__textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--color-primary);
   background: white;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 4px var(--color-primary-light);
 }
 
 .contacts-form__select {
@@ -581,7 +535,7 @@ const onSubmit = async () => {
 .contacts-form__submit {
   width: 100%;
   padding: 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   color: white;
   border: none;
   border-radius: 0.75rem;
@@ -594,7 +548,7 @@ const onSubmit = async () => {
 
 .contacts-form__submit:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 10px 25px -5px var(--color-primary-light);
 }
 
 .contacts-form__submit:disabled {
@@ -624,11 +578,11 @@ const onSubmit = async () => {
 .contacts-form__agreement {
   text-align: center;
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--color-text-muted);
 }
 
 .contacts-form__agreement-link {
-  color: #667eea;
+  color: var(--color-primary);
   text-decoration: none;
 }
 
@@ -670,7 +624,7 @@ const onSubmit = async () => {
 .contacts-map__card-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-text);
   margin-bottom: 1rem;
 }
 
@@ -684,7 +638,7 @@ const onSubmit = async () => {
   display: flex;
   gap: 1rem;
   margin-bottom: 1rem;
-  color: #475569;
+  color: var(--color-text-secondary);
 }
 
 .contacts-map__card-item:last-child {
@@ -699,19 +653,19 @@ const onSubmit = async () => {
 /* === Социальные сети === */
 .contacts-social {
   padding: 5rem 0;
-  background: white;
+  background: var(--color-bg-card);
   text-align: center;
 }
 
 .contacts-social__title {
   font-size: 2rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--color-text);
   margin-bottom: 0.5rem;
 }
 
 .contacts-social__subtitle {
-  color: #475569;
+  color: var(--color-text-secondary);
   margin-bottom: 3rem;
 }
 
@@ -728,11 +682,11 @@ const onSubmit = async () => {
   flex-direction: column;
   align-items: center;
   padding: 2rem 1rem;
-  background: #f8fafc;
+  background: var(--color-bg-muted);
   border-radius: 1.5rem;
   text-decoration: none;
   transition: all 0.3s ease;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
 }
 
 .contacts-social__link:hover {
@@ -769,87 +723,22 @@ const onSubmit = async () => {
 .contacts-social__icon {
   font-size: 2rem;
   margin-bottom: 0.5rem;
-  color: #0f172a;
+  color: var(--color-text);
   transition: color 0.3s ease;
 }
 
 .contacts-social__name {
   font-size: 1rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-text);
   margin-bottom: 0.25rem;
   transition: color 0.3s ease;
 }
 
 .contacts-social__handle {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--color-text-muted);
   transition: color 0.3s ease;
-}
-
-/* === FAQ секция === */
-.contacts-faq {
-  padding: 5rem 0;
-  background: #f8fafc;
-}
-
-.contacts-faq__title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #0f172a;
-  text-align: center;
-  margin-bottom: 0.5rem;
-}
-
-.contacts-faq__subtitle {
-  text-align: center;
-  color: #475569;
-  margin-bottom: 3rem;
-}
-
-.contacts-faq__grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.contacts-faq__item {
-  background: white;
-  padding: 2rem;
-  border-radius: 1.5rem;
-  border: 1px solid #e2e8f0;
-  transition: all 0.3s ease;
-}
-
-.contacts-faq__item:hover {
-  border-color: #667eea;
-  box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.1);
-  transform: translateY(-3px);
-}
-
-.contacts-faq__question {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #0f172a;
-  margin-bottom: 1rem;
-  position: relative;
-  padding-left: 1.5rem;
-}
-
-.contacts-faq__question::before {
-  content: '?';
-  position: absolute;
-  left: 0;
-  color: #667eea;
-  font-weight: 700;
-}
-
-.contacts-faq__answer {
-  color: #475569;
-  line-height: 1.6;
-  padding-left: 1.5rem;
 }
 
 /* === Анимации === */
@@ -901,10 +790,6 @@ const onSubmit = async () => {
   .contacts-form__row {
     grid-template-columns: 1fr;
     gap: 0;
-  }
-
-  .contacts-faq__grid {
-    grid-template-columns: 1fr;
   }
 
   .contacts-map__card {

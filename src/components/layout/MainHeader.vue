@@ -71,7 +71,7 @@ const userRoleLabel = computed(() => {
 </script>
 
 <template>
-  <header class="header">
+  <header class="navbar navbar-expand-lg navbar-light bg-white border-bottom header">
     <div class="header__container">
       <div class="header__left">
         <router-link to="/" class="header__brand" @click="closeMobileMenu">
@@ -96,9 +96,7 @@ const userRoleLabel = computed(() => {
 
       <div class="header__center">
         <div class="header__search-wrap">
-          <svg class="header__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+          <i class="bi bi-search header__search-icon" aria-hidden="true"></i>
           <input
             v-model="searchQuery"
             type="search"
@@ -206,12 +204,13 @@ const userRoleLabel = computed(() => {
 </template>
 
 <style scoped>
-/* Цвета макета: белый фон, серые тексты, акцент красный (бейдж), фиолетовый аватар */
+/* Bootstrap navbar + единый стиль с app topbars */
 .header {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: #ffffff;
+  background-color: var(--color-bg-card) !important;
+  border-bottom-color: var(--color-border) !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
@@ -219,11 +218,13 @@ const userRoleLabel = computed(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 64px;
+  height: 52px;
+  min-height: 52px;
   max-width: var(--content-max-width);
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 1.5rem;
   gap: 16px;
+  width: 100%;
 }
 
 /* ——— Левая часть: логотип и навигация ——— */
@@ -248,7 +249,7 @@ const userRoleLabel = computed(() => {
   width: 40px;
   height: 40px;
   border-radius: 8px;
-  background: #6f42c1;
+  background: var(--color-primary);
   color: #fff;
   font-size: 1.25rem;
   font-weight: 700;
@@ -450,20 +451,20 @@ const userRoleLabel = computed(() => {
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: #6f42c1;
-  color: #ffffff;
+  background: var(--color-primary);
+  color: #fff;
   font-weight: 700;
   font-size: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(111, 66, 193, 0.35);
+  box-shadow: 0 2px 6px var(--color-primary-light);
   transition: box-shadow 0.2s;
 }
 
 .header__user-btn:hover .header__avatar {
-  box-shadow: 0 3px 10px rgba(111, 66, 193, 0.4);
+  box-shadow: 0 3px 10px var(--color-primary-light);
 }
 
 .header__dropdown {

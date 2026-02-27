@@ -15,7 +15,7 @@ import ClientRealEstateRequestsPage from '../views/client/ClientRealEstateReques
 import ClientVehicleRequestsPage from '../views/client/ClientVehicleRequestsPage.vue'
 import ClientFixedAssetsRequestsPage from '../views/client/ClientFixedAssetsRequestsPage.vue'
 import ClientRequestCreatePage from '../views/client/ClientRequestCreatePage.vue'
-import ClientRequestDetailPage from '../views/client/ClientRequestDetailPage.vue'
+import ClientRequestEditPage from '../views/client/ClientRequestEditPage.vue'
 import CompanyLayout from '../components/company/layout/CompanyLayout.vue'
 import CompanyDashboard from '../views/company/CompanyDashboard.vue'
 import CompanyRequestsListPage from '../views/company/CompanyRequestsListPage.vue'
@@ -96,9 +96,9 @@ const routes = [
         component: ClientRequestCreatePage,
       },
       {
-        path: 'requests/:id',
-        name: 'client-request-detail',
-        component: ClientRequestDetailPage,
+        path: 'request/:id',
+        name: 'client-request-edit',
+        component: ClientRequestEditPage,
       },
     ],
   },

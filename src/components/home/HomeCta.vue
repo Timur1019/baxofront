@@ -14,21 +14,15 @@ const { t } = useI18n()
 
         <div class="cta-features">
           <div class="cta-feature">
-            <svg class="cta-feature__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M20 6L9 17l-5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <i class="bi bi-check-circle-fill cta-feature__icon"></i>
             <span>{{ t('home.ctaFeature1') }}</span>
           </div>
           <div class="cta-feature">
-            <svg class="cta-feature__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M20 6L9 17l-5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <i class="bi bi-check-circle-fill cta-feature__icon"></i>
             <span>{{ t('home.ctaFeature2') }}</span>
           </div>
           <div class="cta-feature">
-            <svg class="cta-feature__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M20 6L9 17l-5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <i class="bi bi-check-circle-fill cta-feature__icon"></i>
             <span>{{ t('home.ctaFeature3') }}</span>
           </div>
         </div>

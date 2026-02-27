@@ -13,6 +13,54 @@
   margin-bottom: 3rem;
 }
 
+.home-footer__links {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.home-footer__links-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: var(--home-white);
+}
+
+.home-footer__links-list {
+  list-style: none;
+  padding: 0;
+}
+
+.home-footer__links-list li {
+  margin-bottom: 0.75rem;
+}
+
+.home-footer__links-list a {
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.home-footer__links-list a:hover {
+  color: var(--home-white);
+}
+
+.home-footer__legal {
+  display: flex;
+  gap: 2rem;
+}
+
+.home-footer__legal a {
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color 0.3s ease;
+}
+
+.home-footer__legal a:hover {
+  color: var(--home-white);
+}
+
 .home-footer__logo {
   font-size: 1.5rem;
   font-weight: 700;
@@ -48,38 +96,6 @@
   transform: translateY(-3px);
 }
 
-.home-footer__links {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-}
-
-.home-footer__links-title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  color: var(--home-white);
-}
-
-.home-footer__links-list {
-  list-style: none;
-  padding: 0;
-}
-
-.home-footer__links-list li {
-  margin-bottom: 0.75rem;
-}
-
-.home-footer__links-list a {
-  color: #94a3b8;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.home-footer__links-list a:hover {
-  color: var(--home-white);
-}
-
 .home-footer__bottom {
   padding-top: 2rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -93,35 +109,22 @@
   font-size: 0.875rem;
 }
 
-.home-footer__legal {
-  display: flex;
-  gap: 2rem;
-}
-
-.home-footer__legal a {
-  color: #94a3b8;
-  text-decoration: none;
-  font-size: 0.875rem;
-  transition: color 0.3s ease;
-}
-
-.home-footer__legal a:hover {
-  color: var(--home-white);
-}
-
 @media (max-width: 768px) {
   .home-footer__container {
     grid-template-columns: 1fr;
     gap: 2rem;
   }
+
   .home-footer__links {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .home-footer__bottom {
     flex-direction: column;
     gap: 1rem;
     text-align: center;
   }
+
   .home-footer__legal {
     justify-content: center;
   }

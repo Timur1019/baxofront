@@ -1,6 +1,5 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useI18n } from '../../i18n/useI18n'
 import { useStatusLabel } from '../../composables/useStatusLabel'
 import { useFormatting } from '../../composables/useFormatting'
@@ -8,11 +7,11 @@ import { useFileDownload } from '../../composables/useFileDownload'
 import { useAppraisalPurpose } from '../../composables/useAppraisalPurpose'
 import { getMyEvaluationRequests, getStatuses, createEvaluationRequestWithDocument, downloadReport } from '../../api/evaluationApi'
 import ClientRequestViewModal from '../../components/client/ClientRequestViewModal.vue'
+import ReportQrTrigger from '../../components/shared/ReportQrTrigger.vue'
 import { getRegions, getDistrictsByRegion } from '../../api/regionsApi'
 import { getAppraisalPurposes } from '../../api/appraisalPurposesApi'
 
 const { t } = useI18n()
-const router = useRouter()
 const { statusLabel } = useStatusLabel()
 const { formatDate, formatSum } = useFormatting()
 const { triggerDownload } = useFileDownload()
@@ -158,19 +157,14 @@ async function submitAdd() {
       regionId: form.value.regionId || null,
       districtId: form.value.districtId || null,
     }
-    const created = await createEvaluationRequestWithDocument(dto, cadastralFile.value, null)
+    await createEvaluationRequestWithDocument(dto, cadastralFile.value, null)
     closeAddModal()
     load()
-    router.push({ name: 'client-request-detail', params: { id: created.id } })
   } catch (e) {
     formError.value = e.response?.data?.message || e.message || t('client.formErrorSaveFailed')
   } finally {
     formLoading.value = false
   }
-}
-
-function goToDetail(id) {
-  router.push({ name: 'client-request-detail', params: { id } })
 }
 
 function openViewModal(item) {
@@ -182,6 +176,11 @@ function openViewModal(item) {
 function closeViewModal() {
   showViewModal.value = false
   document.body.style.overflow = ''
+}
+
+function onRequestDeleted() {
+  closeViewModal()
+  load()
 }
 
 async function handleDownloadReport(item) {
@@ -200,60 +199,60 @@ async function handleDownloadReport(item) {
     <div class="client-requests-page__toolbar">
       <div class="client-requests-page__filters">
         <div class="client-requests-page__filter client-requests-page__filter--search">
-          <label class="client-requests-page__filter-label">{{ t('client.filterSearch') }}</label>
-          <div class="client-requests-page__search-row">
+          <label class="form-label small text-muted mb-1">{{ t('client.filterSearch') }}</label>
+          <div class="input-group">
             <input
                 v-model="filterSearch"
                 type="text"
-                class="client-requests-page__search-input"
+                class="form-control"
                 :placeholder="t('client.filterSearchPlaceholder')"
                 @keydown.enter.prevent="load()"
             />
-            <button type="button" class="client-requests-page__search-btn" @click="load()" :aria-label="t('client.filterSearch')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg>
+            <button type="button" class="btn btn-primary" @click="load()" :aria-label="t('client.filterSearch')">
+              <i class="bi bi-search"></i>
             </button>
           </div>
         </div>
         <div class="client-requests-page__filter">
-          <label class="client-requests-page__filter-label">{{ t('client.filterStatus') }}</label>
-          <select v-model="filterStatus" class="client-requests-page__select">
+          <label class="form-label small text-muted mb-1">{{ t('client.filterStatus') }}</label>
+          <select v-model="filterStatus" class="form-select form-select-sm">
             <option :value="null">{{ t('client.allStatuses') }}</option>
             <option v-for="s in statuses" :key="s" :value="s">{{ statusLabel(s) }}</option>
           </select>
         </div>
         <div class="client-requests-page__filter">
-          <label class="client-requests-page__filter-label">{{ t('client.filterRegion') }}</label>
-          <select v-model="filterRegionId" class="client-requests-page__select">
+          <label class="form-label small text-muted mb-1">{{ t('client.filterRegion') }}</label>
+          <select v-model="filterRegionId" class="form-select form-select-sm">
             <option value="">{{ t('client.selectOption') }}</option>
             <option v-for="r in regions" :key="r.id" :value="r.id">{{ r.nameUz }}</option>
           </select>
         </div>
         <div class="client-requests-page__filter">
-          <label class="client-requests-page__filter-label">{{ t('client.filterDistrict') }}</label>
-          <select v-model="filterDistrictId" class="client-requests-page__select" :disabled="!filterRegionId">
+          <label class="form-label small text-muted mb-1">{{ t('client.filterDistrict') }}</label>
+          <select v-model="filterDistrictId" class="form-select form-select-sm" :disabled="!filterRegionId">
             <option value="">{{ t('client.selectOption') }}</option>
             <option v-for="d in districts" :key="d.id" :value="d.id">{{ d.nameUz }}</option>
           </select>
         </div>
         <div class="client-requests-page__filter">
-          <label class="client-requests-page__filter-label">{{ t('client.filterDateFrom') }}</label>
-          <input v-model="filterDateFrom" type="date" class="client-requests-page__select client-requests-page__date-input" />
+          <label class="form-label small text-muted mb-1">{{ t('client.filterDateFrom') }}</label>
+          <input v-model="filterDateFrom" type="date" class="form-control form-control-sm" />
         </div>
         <div class="client-requests-page__filter">
-          <label class="client-requests-page__filter-label">{{ t('client.filterDateTo') }}</label>
-          <input v-model="filterDateTo" type="date" class="client-requests-page__select client-requests-page__date-input" />
+          <label class="form-label small text-muted mb-1">{{ t('client.filterDateTo') }}</label>
+          <input v-model="filterDateTo" type="date" class="form-control form-control-sm" />
         </div>
       </div>
       <div class="client-requests-page__toolbar-actions">
-        <button type="button" class="client-requests-page__add-btn" @click="openAddModal">
+        <button type="button" class="btn btn-primary" @click="openAddModal">
           {{ t('client.addButton') }}
         </button>
       </div>
     </div>
 
     <section class="client-requests-page__section">
-      <div class="client-requests-page__table-wrap">
-        <table class="client-requests-page__table">
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover">
           <thead>
           <tr>
             <th>{{ t('client.tableNo') }}</th>
@@ -264,22 +263,22 @@ async function handleDownloadReport(item) {
             <th>{{ t('client.tableCompletedAt') }}</th>
             <th>{{ t('client.tableCostSum') }}</th>
             <th>{{ t('client.tableReport') }}</th>
-            <th class="client-requests-page__th-icon"></th>
+            <th class="table__cell--actions-head"></th>
           </tr>
           </thead>
           <tbody>
-          <tr v-if="loading">
-            <td colspan="9" class="client-requests-page__loading-cell">{{ t('client.loading') }}</td>
+          <tr v-if="loading" class="table__row">
+            <td colspan="9" class="table__loading-cell">{{ t('client.loading') }}</td>
           </tr>
-          <tr v-else-if="list.length === 0">
-            <td colspan="9" class="client-requests-page__empty-cell">{{ t('client.noData') }}</td>
+          <tr v-else-if="list.length === 0" class="table__row">
+            <td colspan="9" class="table__empty-cell">{{ t('client.noData') }}</td>
           </tr>
           <tr
               v-else
               v-for="(item, idx) in list"
               :key="item.id"
-              class="client-requests-page__row"
-              @click="goToDetail(item.id)"
+              class="table__row table__row--clickable"
+              @click="openViewModal(item)"
           >
             <td>{{ (currentPage * pageSize) + idx + 1 }}</td>
             <td>{{ item.appraisedObjectName || '—' }}</td>
@@ -302,17 +301,17 @@ async function handleDownloadReport(item) {
               <span v-else>—</span>
             </td>
             <td>
-              <button
-                type="button"
-                class="client-requests-page__view-btn"
-                :title="t('client.view')"
-                @click.stop="openViewModal(item)"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12c0 0 4-8 11-8s11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                  <circle cx="12" cy="12" r="3.5"/>
-                </svg>
-              </button>
+              <div class="client-requests-page__actions">
+                <ReportQrTrigger :request-id="item.id" />
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  :title="t('client.view')"
+                  @click.stop="openViewModal(item)"
+                >
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
             </td>
           </tr>
           </tbody>
@@ -325,7 +324,7 @@ async function handleDownloadReport(item) {
         <div class="modal-container">
           <div class="modal-header">
             <h2 class="modal-title">
-              <span class="modal-title-icon">📋</span>
+              <i class="bi bi-clipboard modal-title-icon"></i>
               {{ t('client.modalNewRequest') }}
             </h2>
             <button class="modal-close" @click="closeAddModal">×</button>
@@ -333,68 +332,68 @@ async function handleDownloadReport(item) {
           <form class="modal-form" @submit.prevent="submitAdd">
             <div class="modal-form__grid">
               <div class="modal-form__group modal-form__group--full">
-                <label class="modal-form__label">
-                  {{ t('client.modalCadastralNumber') }} <span class="modal-form__required">*</span>
+                <label class="form-label">
+                  {{ t('client.modalCadastralNumber') }} <span class="text-danger">*</span>
                 </label>
                 <input
                     v-model="form.cadastralNumber"
                     type="text"
-                    class="modal-form__input"
+                    class="form-control"
                     :placeholder="t('client.modalCadastralPlaceholder')"
                     required
                 />
               </div>
               <div class="modal-form__group">
-                <label class="modal-form__label">
-                  {{ t('client.modalAppraisalPurpose') }} <span class="modal-form__required">*</span>
+                <label class="form-label">
+                  {{ t('client.modalAppraisalPurpose') }} <span class="text-danger">*</span>
                 </label>
-                <select v-model="form.appraisalPurpose" class="modal-form__select" required>
+                <select v-model="form.appraisalPurpose" class="form-select" required>
                   <option value="">{{ t('client.selectOption') }}</option>
                   <option v-for="p in appraisalPurposes" :key="p.id" :value="p.code">{{ purposeName(p) }}</option>
                 </select>
               </div>
               <div class="modal-form__group">
-                <label class="modal-form__label">
-                  {{ t('client.modalOwnerPhone') }} <span class="modal-form__required">*</span>
+                <label class="form-label">
+                  {{ t('client.modalOwnerPhone') }} <span class="text-danger">*</span>
                 </label>
                 <input
                     v-model="form.ownerPhone"
                     type="tel"
-                    class="modal-form__input"
+                    class="form-control"
                     placeholder="+998 (__) ___ ____"
                     required
                 />
               </div>
               <div class="modal-form__group">
-                <label class="modal-form__label">
-                  {{ t('client.modalBankPhone') }} <span class="modal-form__required">*</span>
+                <label class="form-label">
+                  {{ t('client.modalBankPhone') }} <span class="text-danger">*</span>
                 </label>
                 <input
                     v-model="form.bankEmployeePhone"
                     type="tel"
-                    class="modal-form__input"
+                    class="form-control"
                     placeholder="+998 (__) ___ ____"
                     required
                 />
               </div>
               <div class="modal-form__group">
-                <label class="modal-form__label">
-                  {{ t('client.modalBorrowerInn') }} <span class="modal-form__required">*</span>
+                <label class="form-label">
+                  {{ t('client.modalBorrowerInn') }} <span class="text-danger">*</span>
                 </label>
                 <input
                     v-model="form.borrowerInn"
                     type="text"
-                    class="modal-form__input"
+                    class="form-control"
                     :placeholder="t('client.modalBorrowerInnPlaceholder')"
                     required
                 />
               </div>
               <div class="modal-form__group modal-form__group--full">
-                <label class="modal-form__label">
-                  {{ t('client.modalCadastralDoc') }} <span class="modal-form__required">*</span>
+                <label class="form-label">
+                  {{ t('client.modalCadastralDoc') }} <span class="text-danger">*</span>
                 </label>
                 <div class="modal-form__file-zone" @click="$refs.fileInput.click()">
-                  <div class="modal-form__file-icon">📎</div>
+                  <i class="bi bi-paperclip modal-form__file-icon"></i>
                   <div class="modal-form__file-text">
                     {{ cadastralFile ? cadastralFile.name : t('client.modalFileZone') }}
                   </div>
@@ -412,14 +411,14 @@ async function handleDownloadReport(item) {
               </div>
             </div>
             <div v-if="formError" class="modal-form__error">
-              <span class="modal-form__error-icon">⚠️</span>
+              <i class="bi bi-exclamation-triangle-fill modal-form__error-icon"></i>
               {{ formError }}
             </div>
-            <div class="modal-form__actions">
-              <button type="button" class="modal-form__btn modal-form__btn--secondary" @click="closeAddModal">
+            <div class="modal-form__actions d-flex gap-2 justify-content-end">
+              <button type="button" class="btn btn-secondary" @click="closeAddModal">
                 {{ t('client.modalCancel') }}
               </button>
-              <button type="submit" class="modal-form__btn modal-form__btn--primary" :disabled="formLoading">
+              <button type="submit" class="btn btn-primary" :disabled="formLoading">
                 <span v-if="!formLoading">{{ t('client.modalSubmit') }}</span>
                 <span v-else class="modal-form__loading">
                   <span class="modal-form__spinner"></span>
@@ -436,35 +435,34 @@ async function handleDownloadReport(item) {
       :request-id="viewRequestId"
       :show="showViewModal"
       @close="closeViewModal"
+      @deleted="onRequestDeleted"
     />
   </div>
 </template>
 
 <style scoped>
-@import '../../styles/client/requests-list.css';
-@import '../../styles/client/requests-modal.css';
+@import '../../styles/requests-list.css';
+@import '../../styles/requests-modal.css';
 
 .client-requests-page__th-icon { width: 52px; }
 .client-requests-page__view-btn {
   width: 40px;
   height: 40px;
   padding: 0;
-  border: none;
-  background: linear-gradient(135deg, rgba(111,66,193,0.08) 0%, rgba(111,66,193,0.04) 100%);
-  color: var(--color-accent, #6f42c1);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  color: var(--color-text-muted);
   cursor: pointer;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.25s ease;
-  box-shadow: 0 1px 3px rgba(111,66,193,0.12);
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 .client-requests-page__view-btn:hover {
-  background: linear-gradient(135deg, var(--color-accent, #6f42c1) 0%, #5a32a8 100%);
-  color: #fff;
-  transform: scale(1.08);
-  box-shadow: 0 4px 12px rgba(111,66,193,0.35);
+  background: var(--color-bg-hover);
+  color: var(--color-text);
+  border-color: var(--color-text-muted);
 }
 .client-requests-page__view-btn svg {
   width: 20px;

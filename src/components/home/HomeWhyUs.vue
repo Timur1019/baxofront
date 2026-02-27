@@ -79,7 +79,7 @@ const featureCards = computed(() => [
 }
 
 .features__container {
-  max-width: 1280px;
+  max-width: var(--content-max-width, 1570px);
   margin: 0 auto;
   padding: 0 40px;
 }
@@ -94,7 +94,7 @@ const featureCards = computed(() => [
 .features__badge {
   display: inline-block;
   padding: 6px 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   color: white;
   border-radius: 100px;
   font-size: 13px;

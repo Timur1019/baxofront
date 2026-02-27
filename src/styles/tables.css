@@ -1,0 +1,116 @@
+/* Дополнения к Bootstrap таблицам: модификаторы и мобильная версия */
+@import './variables.css';
+
+/* Модификаторы строк и ячеек */
+.table__row--clickable {
+  cursor: pointer;
+}
+
+.table__row--empty td {
+  padding: 0;
+}
+
+.table__cell--nowrap {
+  white-space: nowrap;
+}
+
+.table__cell--message {
+  max-width: 300px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.5;
+}
+
+.table__cell--truncate {
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table__cell--right {
+  text-align: right;
+}
+
+.table__cell--actions-head {
+  width: 1%;
+}
+
+.table__cell--actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.table__loading-cell,
+.table__empty-cell {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-muted);
+}
+
+/* Мобильная версия — карточки */
+@media (max-width: 640px) {
+  .table,
+  .table thead,
+  .table tbody,
+  .table th,
+  .table td,
+  .table tr {
+    display: block;
+  }
+
+  .table thead {
+    display: none;
+  }
+
+  .table tr {
+    margin-bottom: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    background: var(--color-bg-card);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed var(--color-border-light);
+    border-right: none !important;
+  }
+
+  .table td:last-child {
+    border-bottom: none;
+  }
+
+  .table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    margin-right: 1rem;
+    min-width: 90px;
+    flex-shrink: 0;
+  }
+
+  .table__cell--message {
+    max-width: none;
+    white-space: normal;
+  }
+
+  .table__cell--truncate {
+    max-width: none;
+    white-space: normal;
+  }
+
+  .table__cell--actions {
+    text-align: left;
+  }
+
+  .table__cell--right::before {
+    text-align: left;
+  }
+}

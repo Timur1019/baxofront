@@ -37,6 +37,8 @@ const onSubmit = async () => {
       token: data.token,
       fullName: data.fullName,
       role: data.role,
+      canEditEvaluationRequests: data.canEditEvaluationRequests !== false,
+      canDeleteEvaluationRequests: data.canDeleteEvaluationRequests !== false,
     }
 
     if (form.value.remember) {
@@ -115,11 +117,7 @@ const onSubmit = async () => {
           <!-- Сообщение об ошибке -->
           <transition name="shake">
             <div v-if="errorMessage" class="login-form__error">
-              <svg class="login-form__error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <circle cx="12" cy="12" r="10" stroke-width="2"/>
-                <line x1="12" y1="8" x2="12" y2="12" stroke-width="2"/>
-                <circle cx="12" cy="16" r="1" fill="currentColor"/>
-              </svg>
+              <i class="bi bi-exclamation-circle-fill login-form__error-icon"></i>
               {{ errorMessage }}
             </div>
           </transition>
@@ -127,10 +125,7 @@ const onSubmit = async () => {
           <!-- Поле логина -->
           <div class="login-form__field">
             <label for="username" class="login-form__label">
-              <svg class="login-form__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke-width="2"/>
-                <circle cx="12" cy="7" r="4" stroke-width="2"/>
-              </svg>
+              <i class="bi bi-person login-form__label-icon"></i>
               {{ t('login.loginLabel') }}
             </label>
             <div class="login-form__input-wrapper">
@@ -138,9 +133,9 @@ const onSubmit = async () => {
                   id="username"
                   v-model="form.username"
                   type="text"
-                  class="login-form__input"
+                  class="form-control"
+                  :class="{ 'is-invalid': errorMessage }"
                   placeholder="admin"
-                  :class="{ 'login-form__input--error': errorMessage }"
                   required
               />
             </div>
@@ -149,10 +144,7 @@ const onSubmit = async () => {
           <!-- Поле пароля -->
           <div class="login-form__field">
             <label for="password" class="login-form__label">
-              <svg class="login-form__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke-width="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke-width="2"/>
-              </svg>
+              <i class="bi bi-lock login-form__label-icon"></i>
               {{ t('login.passwordLabel') }}
             </label>
             <div class="login-form__input-wrapper">
@@ -160,9 +152,9 @@ const onSubmit = async () => {
                   id="password"
                   v-model="form.password"
                   :type="showPassword ? 'text' : 'password'"
-                  class="login-form__input"
+                  class="form-control"
+                  :class="{ 'is-invalid': errorMessage }"
                   :placeholder="t('login.passwordPlaceholder')"
-                  :class="{ 'login-form__input--error': errorMessage }"
                   required
               />
               <button
@@ -171,14 +163,8 @@ const onSubmit = async () => {
                   @click="showPassword = !showPassword"
                   :title="showPassword ? t('login.hidePassword') : t('login.showPassword')"
               >
-                <svg v-if="!showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="2"/>
-                  <circle cx="12" cy="12" r="3" stroke-width="2"/>
-                </svg>
-                <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke-width="2"/>
-                  <line x1="1" y1="1" x2="23" y2="23" stroke-width="2"/>
-                </svg>
+                <i v-if="!showPassword" class="bi bi-eye"></i>
+                <i v-else class="bi bi-eye-slash"></i>
               </button>
             </div>
           </div>
@@ -199,10 +185,8 @@ const onSubmit = async () => {
               :disabled="isSubmitting"
           >
             <span v-if="!isSubmitting">{{ t('login.submit') }}</span>
-            <span v-else class="login-form__submit-loading">
-              <svg class="login-form__spinner" viewBox="0 0 50 50">
-                <circle class="login-form__spinner-path" cx="25" cy="25" r="20" fill="none" stroke-width="5"/>
-              </svg>
+            <span v-else class="login-form__submit-loading d-inline-flex align-items-center gap-2">
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
               {{ t('login.submitting') }}
             </span>
           </button>
@@ -226,7 +210,7 @@ const onSubmit = async () => {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
 }
 
 /* === Левая колонка с брендом === */
@@ -549,7 +533,7 @@ const onSubmit = async () => {
 }
 
 .login-form__forgot:hover {
-  color: #764ba2;
+  color: var(--color-primary);
   text-decoration: underline;
 }
 
@@ -557,7 +541,7 @@ const onSubmit = async () => {
 .login-form__submit {
   width: 100%;
   padding: 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   color: white;
   border: none;
   border-radius: 0.75rem;
@@ -655,7 +639,7 @@ const onSubmit = async () => {
 }
 
 .login-form__demo-button:hover {
-  color: #764ba2;
+  color: var(--color-primary);
 }
 
 /* === Футер формы === */

@@ -84,6 +84,11 @@ export async function deleteReport(requestId) {
   await apiClient.delete(`/evaluation-requests/${requestId}/report`)
 }
 
+/** Удалить заявку (мягкое удаление). Компания/админ — любую; клиент — только свою */
+export async function deleteEvaluationRequest(requestId) {
+  await apiClient.delete(`/evaluation-requests/${requestId}`)
+}
+
 export async function confirmCompletion(requestId) {
   await apiClient.post(`/evaluation-requests/${requestId}/confirm-completion`)
 }
@@ -141,6 +146,17 @@ export async function downloadReport(requestId) {
     if (match) fileName = decodeURIComponent(match[1].trim())
   }
   return { blob, fileName }
+}
+
+/**
+ * Получить QR-код (PNG blob) для просмотра PDF-отчёта по сканированию.
+ * Использовать с URL.createObjectURL для отображения в <img>.
+ */
+export async function getReportQrBlob(requestId) {
+  const { data } = await apiClient.get(`/evaluation-requests/${requestId}/report-qr`, {
+    responseType: 'blob',
+  })
+  return data
 }
 
 /**

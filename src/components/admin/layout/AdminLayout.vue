@@ -7,7 +7,7 @@ import { clearAuth } from '../../../utils/auth'
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
-const isSidebarCollapsed = ref(false)
+const sidebarOpen = ref(true)
 const isMobileMenuOpen = ref(false)
 
 // В меню оставляем только реально работающие разделы
@@ -15,19 +15,19 @@ const menuItems = computed(() => [
   {
     name: t('admin.dashboard'),
     routeName: 'admin-dashboard',
-    icon: '📊',
+    icon: 'bi-bar-chart',
     description: t('admin.dashboardDesc'),
   },
   {
     name: t('admin.users'),
     routeName: 'admin-users',
-    icon: '👥',
+    icon: 'bi-people',
     description: t('admin.usersDesc'),
   },
   {
     name: t('admin.contactRequests'),
     routeName: 'admin-contact-requests',
-    icon: '📬',
+    icon: 'bi-envelope',
     description: t('admin.contactRequestsDesc'),
   },
 ])
@@ -64,7 +64,20 @@ const logout = () => {
 
 // Переключение боковой панели
 const toggleSidebar = () => {
-  isSidebarCollapsed.value = !isSidebarCollapsed.value
+  sidebarOpen.value = !sidebarOpen.value
+  if (!sidebarOpen.value) isMobileMenuOpen.value = false
+}
+
+const openSidebar = () => {
+  sidebarOpen.value = true
+  if (typeof window !== 'undefined' && window.innerWidth < 1025) {
+    isMobileMenuOpen.value = true
+  }
+}
+
+const closeMobileMenu = () => {
+  isMobileMenuOpen.value = false
+  sidebarOpen.value = false
 }
 
 // Получение инициалов пользователя
@@ -81,7 +94,7 @@ const getUserInitials = () => {
 // Получение цвета аватара на основе имени
 const getAvatarColor = () => {
   const colors = [
-    '#667eea', '#764ba2', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6'
+    '#5b21b6', '#6d28d9', '#d97706', '#059669', '#dc2626', '#7c3aed'
   ]
 
   if (!currentUser.value?.fullName) return colors[0]
@@ -92,7 +105,7 @@ const getAvatarColor = () => {
 </script>
 
 <template>
-  <div class="admin-layout" :class="{ 'admin-layout--collapsed': isSidebarCollapsed }">
+  <div class="admin-layout" :class="{ 'admin-layout--sidebar-closed': !sidebarOpen }">
     <!-- Оверлей для мобильных -->
     <div
         v-if="isMobileMenuOpen"
@@ -106,58 +119,44 @@ const getAvatarColor = () => {
       <div class="admin-layout__brand">
         <div class="admin-layout__logo-wrapper">
           <div class="admin-layout__logo">
-            <span class="admin-layout__logo-icon">📚</span>
+            <i class="bi bi-journal-bookmark-fill admin-layout__logo-icon"></i>
           </div>
-          <transition name="fade">
-            <div v-if="!isSidebarCollapsed" class="admin-layout__brand-info">
-              <span class="admin-layout__brand-title">Baholash</span>
-              <span class="admin-layout__brand-subtitle">{{ t('admin.brandSubtitle') }}</span>
-            </div>
-          </transition>
+          <div class="admin-layout__brand-info">
+            <span class="admin-layout__brand-title">Baholash</span>
+            <span class="admin-layout__brand-subtitle">{{ t('admin.brandSubtitle') }}</span>
+          </div>
         </div>
 
         <!-- Кнопка сворачивания -->
         <button
+            type="button"
             class="admin-layout__collapse-btn"
             @click="toggleSidebar"
-            :title="isSidebarCollapsed ? 'Развернуть' : 'Свернуть'"
+            :aria-label="sidebarOpen ? 'Скрыть меню' : 'Показать меню'"
+            :title="sidebarOpen ? 'Скрыть меню' : 'Показать меню'"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path
-                :d="isSidebarCollapsed ? 'M13 5l7 7-7 7M5 5l7 7-7 7' : 'M11 19l-7-7 7-7M19 19l-7-7 7-7'"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-            />
-          </svg>
+          <i :class="sidebarOpen ? 'bi bi-chevron-left' : 'bi bi-chevron-right'"></i>
         </button>
       </div>
 
       <!-- Навигация -->
       <nav class="admin-layout__nav">
         <div class="admin-layout__nav-section">
-          <transition name="fade">
-            <span v-if="!isSidebarCollapsed" class="admin-layout__nav-title">ОСНОВНОЕ</span>
-          </transition>
+          <span class="admin-layout__nav-title">ОСНОВНОЕ</span>
 
           <button
               v-for="item in menuItems"
               :key="item.name"
               type="button"
               class="admin-layout__nav-item"
-              :class="{
-              'admin-layout__nav-item--active': isActive(item),
-            }"
-              @click="router.push({ name: item.routeName })"
+              :class="{ 'admin-layout__nav-item--active': isActive(item) }"
+              @click="router.push({ name: item.routeName }); isMobileMenuOpen = false"
           >
-            <span class="admin-layout__nav-icon">{{ item.icon }}</span>
-
-            <transition name="fade">
-              <div v-if="!isSidebarCollapsed" class="admin-layout__nav-content">
-                <span class="admin-layout__nav-label">{{ item.name }}</span>
-                <span class="admin-layout__nav-description">{{ item.description }}</span>
-              </div>
-            </transition>
+            <i :class="['bi', item.icon, 'admin-layout__nav-icon']"></i>
+            <div class="admin-layout__nav-content">
+              <span class="admin-layout__nav-label">{{ item.name }}</span>
+              <span class="admin-layout__nav-description">{{ item.description }}</span>
+            </div>
           </button>
         </div>
       </nav>
@@ -166,12 +165,10 @@ const getAvatarColor = () => {
       <div class="admin-layout__sidebar-footer">
         <div class="admin-layout__version">
           <span class="admin-layout__version-dot"></span>
-          <transition name="fade">
-            <div v-if="!isSidebarCollapsed" class="admin-layout__version-info">
-              <span class="admin-layout__version-label">{{ t('admin.version') }}</span>
-              <span class="admin-layout__version-status">{{ t('admin.production') }}</span>
-            </div>
-          </transition>
+          <div class="admin-layout__version-info">
+            <span class="admin-layout__version-label">{{ t('admin.version') }}</span>
+            <span class="admin-layout__version-status">{{ t('admin.production') }}</span>
+          </div>
         </div>
       </div>
     </aside>
@@ -182,20 +179,17 @@ const getAvatarColor = () => {
       <header class="admin-layout__topbar">
         <div class="admin-layout__topbar-left">
           <button
-              class="admin-layout__mobile-menu"
-              @click="isMobileMenuOpen = true"
+              type="button"
+              class="admin-layout__burger"
+              :aria-label="sidebarOpen ? 'Скрыть меню' : 'Показать меню'"
+              @click="sidebarOpen ? toggleSidebar() : openSidebar()"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M3 12h18M3 6h18M3 18h18" stroke-width="2" stroke-linecap="round"/>
-            </svg>
+            <i class="bi bi-list"></i>
           </button>
 
           <div class="admin-layout__breadcrumbs">
             <router-link to="/admin" class="admin-layout__breadcrumb-home">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" stroke-width="2"/>
-                <polyline points="9 22 9 12 15 12 15 22" stroke-width="2"/>
-              </svg>
+              <i class="bi bi-house-door"></i>
             </router-link>
             <span class="admin-layout__breadcrumb-separator">/</span>
             <span class="admin-layout__breadcrumb-current">{{ route.meta?.title || t('admin.contentTitle') }}</span>
@@ -205,14 +199,11 @@ const getAvatarColor = () => {
         <div class="admin-layout__topbar-right">
           <!-- Поиск -->
           <div class="admin-layout__search">
-            <svg class="admin-layout__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <circle cx="11" cy="11" r="8" stroke-width="2"/>
-              <line x1="21" y1="21" x2="16.65" y2="16.65" stroke-width="2"/>
-            </svg>
+            <i class="bi bi-search admin-layout__search-icon"></i>
             <input
                 type="text"
                 :placeholder="t('admin.searchPlaceholder')"
-                class="admin-layout__search-input"
+                class="form-control"
             />
           </div>
 
@@ -234,7 +225,7 @@ const getAvatarColor = () => {
               <!-- Выпадающее меню -->
               <div class="admin-layout__dropdown">
                 <button class="admin-layout__dropdown-item admin-layout__dropdown-item--logout" @click="logout">
-                  <span class="admin-layout__dropdown-icon">🚪</span>
+                  <i class="bi bi-box-arrow-right admin-layout__dropdown-icon"></i>
                   <span>{{ t('nav.logout') }}</span>
                 </button>
               </div>
@@ -247,8 +238,8 @@ const getAvatarColor = () => {
       <main class="admin-layout__content">
         <!-- Хлебные крошки и заголовок -->
         <div class="admin-layout__content-header">
-          <h1 class="admin-layout__content-title">{{ route.meta?.title || t('admin.contentTitle') }}</h1>
-          <p class="admin-layout__content-description">{{ route.meta?.description || t('admin.contentDescription') }}</p>
+          <h1 class="admin-layout__content-title fs-4 fw-semibold">{{ route.meta?.title || t('admin.contentTitle') }}</h1>
+          <p class="admin-layout__content-description small text-muted mb-0">{{ route.meta?.description || t('admin.contentDescription') }}</p>
         </div>
 
         <!-- Роутер для контента -->
@@ -263,46 +254,45 @@ const getAvatarColor = () => {
 </template>
 
 <style scoped>
-/* === Основные переменные === */
+/* === Основные переменные (совпадают с design system) === */
 .admin-layout {
-  --sidebar-width: 280px;
-  --sidebar-collapsed-width: 80px;
-  --topbar-height: 70px;
-  --primary: #667eea;
-  --primary-dark: #5a67d8;
-  --secondary: #764ba2;
-  --dark: #1a202c;
-  --gray: #718096;
-  --light: #f7fafc;
-  --white: #ffffff;
+  --sidebar-width: 260px;
+  --topbar-height: 52px;
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 
   min-height: 100vh;
-  display: flex;
-  background: #f0f2f5;
+  display: grid;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  background: var(--color-bg);
 }
 
-/* === Боковая панель === */
+.admin-layout--sidebar-closed {
+  grid-template-columns: 0 minmax(0, 1fr);
+}
+
+.admin-layout--sidebar-closed .admin-layout__sidebar {
+  width: 0;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0;
+  border-right: none;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* === Боковая панель (единый стиль с client/company) === */
 .admin-layout__sidebar {
   width: var(--sidebar-width);
-  background: linear-gradient(180deg, var(--dark) 0%, #2d3748 100%);
-  color: var(--white);
+  min-width: var(--sidebar-width);
+  background-color: var(--color-sidebar-bg);
+  color: #f9fafb;
   display: flex;
   flex-direction: column;
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  z-index: 50;
-  transition: width 0.3s ease;
-  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  transition: width 0.25s ease, min-width 0.25s ease;
   overflow-y: auto;
   overflow-x: hidden;
-}
-
-.admin-layout--collapsed .admin-layout__sidebar {
-  width: var(--sidebar-collapsed-width);
 }
 
 /* Бренд */
@@ -324,17 +314,17 @@ const getAvatarColor = () => {
 .admin-layout__logo {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 10px rgba(91, 33, 182, 0.4);
 }
 
 .admin-layout__logo-icon {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
 }
 
 .admin-layout__brand-info {
@@ -361,7 +351,7 @@ const getAvatarColor = () => {
   background: rgba(255, 255, 255, 0.1);
   border: none;
   border-radius: 8px;
-  color: var(--white);
+  color: #f9fafb;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -375,9 +365,8 @@ const getAvatarColor = () => {
   transform: scale(1.1);
 }
 
-.admin-layout__collapse-btn svg {
-  width: 20px;
-  height: 20px;
+.admin-layout__collapse-btn i {
+  font-size: 1.25rem;
 }
 
 /* Навигация */
@@ -425,19 +414,19 @@ const getAvatarColor = () => {
   top: 0;
   bottom: 0;
   width: 4px;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   transform: scaleY(0);
   transition: transform 0.3s ease;
 }
 
 .admin-layout__nav-item:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: var(--white);
+  color: #f9fafb;
 }
 
 .admin-layout__nav-item--active {
-  background: rgba(255, 255, 255, 0.15);
-  color: var(--white);
+  background: var(--color-primary-light);
+  color: #f9fafb;
 }
 
 .admin-layout__nav-item--active::before {
@@ -450,8 +439,8 @@ const getAvatarColor = () => {
 }
 
 .admin-layout__nav-icon {
-  font-size: 1.25rem;
-  width: 24px;
+  font-size: 1.125rem;
+  width: 1.25rem;
   text-align: center;
   flex-shrink: 0;
 }
@@ -476,11 +465,11 @@ const getAvatarColor = () => {
 
 .admin-layout__nav-badge {
   padding: 0.25rem 0.5rem;
-  background: var(--primary);
+  background: var(--color-primary);
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--white);
+  color: #f9fafb;
   margin-left: 0.5rem;
 }
 
@@ -534,146 +523,116 @@ const getAvatarColor = () => {
 /* === Основной контент === */
 .admin-layout__main {
   flex: 1;
-  margin-left: var(--sidebar-width);
-  transition: margin-left 0.3s ease;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  background: var(--color-bg);
 }
 
-.admin-layout--collapsed .admin-layout__main {
-  margin-left: var(--sidebar-collapsed-width);
-}
-
-/* Верхняя панель */
-.admin-layout__topbar {
-  height: var(--topbar-height);
-  background: var(--white);
-  border-bottom: 1px solid #e2e8f0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 2rem;
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  box-shadow: var(--shadow);
-}
-
+/* Верхняя панель — базовые стили в topbar.css */
 .admin-layout__topbar-left {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 1rem;
 }
 
-.admin-layout__mobile-menu {
-  display: none;
-  width: 40px;
-  height: 40px;
-  background: none;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  color: var(--gray);
-}
-
-.admin-layout__mobile-menu:hover {
-  background: var(--light);
-}
-
 .admin-layout__breadcrumbs {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 0.5rem;
+  line-height: 1;
 }
 
 .admin-layout__breadcrumb-home {
-  color: var(--gray);
+  color: var(--color-text-muted);
   text-decoration: none;
   display: flex;
   align-items: center;
 }
 
-.admin-layout__breadcrumb-home svg {
-  width: 20px;
-  height: 20px;
+.admin-layout__breadcrumb-home i {
+  font-size: 1.25rem;
 }
 
 .admin-layout__breadcrumb-home:hover {
-  color: var(--primary);
+  color: var(--color-primary);
 }
 
 .admin-layout__breadcrumb-separator {
-  color: var(--gray);
+  color: var(--color-text-muted);
   font-weight: 300;
 }
 
 .admin-layout__breadcrumb-current {
-  color: var(--dark);
+  color: var(--color-text);
   font-weight: 500;
 }
 
 .admin-layout__topbar-right {
   display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-/* Поиск */
-.admin-layout__search {
-  position: relative;
-}
-
-.admin-layout__search-icon {
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 18px;
-  height: 18px;
-  color: var(--gray);
-}
-
-.admin-layout__search-input {
-  padding: 0.5rem 1rem 0.5rem 2.5rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 999px;
-  font-size: 0.875rem;
-  width: 250px;
-  transition: all 0.3s ease;
-  background: var(--light);
-}
-
-.admin-layout__search-input:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  width: 300px;
-  background: var(--white);
-}
-
-/* Профиль пользователя */
-.admin-layout__user {
-  display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 1rem;
 }
 
+/* Поиск — выровнен по центру topbar */
+.admin-layout__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.admin-layout__search .form-control {
+  height: 38px;
+  padding-left: 2.25rem;
+  padding-right: 1rem;
+  font-size: 0.875rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  width: 200px;
+}
+
+.admin-layout__search .form-control:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.2rem var(--color-primary-light);
+}
+
+.admin-layout__search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+/* Профиль пользователя — выровнен по центру */
+.admin-layout__user {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .admin-layout__user-info {
   text-align: right;
-  line-height: 1.2;
+  line-height: 1.3;
 }
 
 .admin-layout__user-name {
   font-weight: 600;
-  color: var(--dark);
+  color: var(--color-text);
   display: block;
   font-size: 0.875rem;
 }
 
 .admin-layout__user-role {
   font-size: 0.75rem;
-  color: var(--gray);
+  color: var(--color-text-muted);
 }
 
 .admin-layout__user-dropdown {
@@ -681,10 +640,12 @@ const getAvatarColor = () => {
 }
 
 .admin-layout__avatar {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -693,12 +654,12 @@ const getAvatarColor = () => {
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 10px rgba(91, 33, 182, 0.3);
 }
 
 .admin-layout__avatar:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 15px rgba(91, 33, 182, 0.4);
 }
 
 /* Выпадающее меню */
@@ -729,7 +690,7 @@ const getAvatarColor = () => {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  color: var(--dark);
+  color: var(--color-text);
   text-decoration: none;
   transition: all 0.3s ease;
   cursor: pointer;
@@ -741,8 +702,8 @@ const getAvatarColor = () => {
 }
 
 .admin-layout__dropdown-item:hover {
-  background: var(--light);
-  color: var(--primary);
+  background: var(--color-bg);
+  color: var(--color-primary);
 }
 
 .admin-layout__dropdown-item--logout:hover {
@@ -750,7 +711,7 @@ const getAvatarColor = () => {
 }
 
 .admin-layout__dropdown-icon {
-  font-size: 1.1rem;
+  font-size: 1.125rem;
 }
 
 .admin-layout__dropdown-divider {
@@ -759,26 +720,32 @@ const getAvatarColor = () => {
   margin: 0.5rem 0;
 }
 
-/* Основной контент */
+/* Основной контент — max-width как у Client/Company, белый блок на серых боковых полях */
 .admin-layout__content {
   flex: 1;
-  padding: 2rem;
-  background: #f0f2f5;
+  width: 100%;
+  max-width: var(--content-max-width, 1570px);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1.5rem;
+  background: var(--color-bg-card);
+  box-shadow: 0 0 0 1px var(--color-border-light);
+  overflow: auto;
 }
 
 .admin-layout__content-header {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .admin-layout__content-title {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--dark);
+  color: var(--color-text);
   margin-bottom: 0.5rem;
 }
 
 .admin-layout__content-description {
-  color: var(--gray);
+  color: var(--color-text-muted);
   font-size: 0.95rem;
 }
 
@@ -810,17 +777,31 @@ const getAvatarColor = () => {
 
 /* Медиа-запросы */
 @media (max-width: 1024px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+
   .admin-layout__sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    z-index: 100;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
     transform: translateX(-100%);
-    transition: transform 0.3s ease;
+    transition: transform 0.25s ease;
   }
 
   .admin-layout__sidebar--open {
     transform: translateX(0);
   }
 
-  .admin-layout__main {
-    margin-left: 0 !important;
+  .admin-layout--sidebar-closed .admin-layout__sidebar {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    transform: translateX(-100%);
   }
 
   .admin-layout__overlay {
@@ -830,14 +811,8 @@ const getAvatarColor = () => {
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 45;
+    z-index: 99;
     backdrop-filter: blur(4px);
-  }
-
-  .admin-layout__mobile-menu {
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 
   .admin-layout__search {

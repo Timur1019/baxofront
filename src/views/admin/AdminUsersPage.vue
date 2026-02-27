@@ -34,6 +34,8 @@ const formUser = ref({
   role: 'COMPANY_EMPLOYEE',
   active: true,
   password: '',
+  canEditEvaluationRequests: true,
+  canDeleteEvaluationRequests: true,
 })
 
 // Роли для выбора (ровно те, что есть в бэкенде)
@@ -103,6 +105,8 @@ const openCreateModal = () => {
     role: 'COMPANY_EMPLOYEE',
     active: true,
     password: '',
+    canEditEvaluationRequests: true,
+    canDeleteEvaluationRequests: true,
   }
   isModalOpen.value = true
 }
@@ -118,6 +122,8 @@ const openEditModal = (user) => {
     role: user.role,
     active: user.active,
     password: '',
+    canEditEvaluationRequests: user.canEditEvaluationRequests !== false,
+    canDeleteEvaluationRequests: user.canDeleteEvaluationRequests !== false,
   }
   isModalOpen.value = true
 }
@@ -147,6 +153,8 @@ const saveUser = async () => {
         fullName: formUser.value.fullName,
         role: formUser.value.role,
         active: formUser.value.active,
+        canEditEvaluationRequests: formUser.value.canEditEvaluationRequests,
+        canDeleteEvaluationRequests: formUser.value.canDeleteEvaluationRequests,
       })
       successMessage.value = 'Пользователь успешно обновлен'
     } else {
@@ -269,15 +277,13 @@ onMounted(() => {
     <!-- Заголовок -->
     <div class="users-page__header">
       <div>
-        <h1 class="users-page__title">Управление пользователями</h1>
-        <p class="users-page__subtitle">
+        <h1 class="users-page__title fs-4 fw-semibold">Управление пользователями</h1>
+        <p class="users-page__subtitle small text-muted mb-0">
           Всего пользователей: <strong>{{ totalElements }}</strong>
         </p>
       </div>
-      <button class="users-page__create-btn" @click="openCreateModal">
-        <svg class="users-page__create-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M12 5v14M5 12h14" stroke-width="2" stroke-linecap="round"/>
-        </svg>
+      <button class="btn btn-primary d-inline-flex align-items-center gap-2" @click="openCreateModal">
+        <i class="bi bi-plus-lg"></i>
         Добавить пользователя
       </button>
     </div>
@@ -285,21 +291,14 @@ onMounted(() => {
     <!-- Сообщения об ошибках/успехе -->
     <transition name="slide">
       <div v-if="errorMessage" class="users-page__alert users-page__alert--error">
-        <svg class="users-page__alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <circle cx="12" cy="12" r="10" stroke-width="2"/>
-          <line x1="12" y1="8" x2="12" y2="12" stroke-width="2"/>
-          <circle cx="12" cy="16" r="1" fill="currentColor"/>
-        </svg>
+        <i class="bi bi-exclamation-circle-fill users-page__alert-icon"></i>
         {{ errorMessage }}
       </div>
     </transition>
 
     <transition name="slide">
       <div v-if="successMessage" class="users-page__alert users-page__alert--success">
-        <svg class="users-page__alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke-width="2"/>
-          <polyline points="22 4 12 14.01 9 11.01" stroke-width="2"/>
-        </svg>
+        <i class="bi bi-check-circle-fill users-page__alert-icon"></i>
         {{ successMessage }}
       </div>
     </transition>
@@ -307,77 +306,66 @@ onMounted(() => {
     <!-- Фильтры и поиск -->
     <div class="users-page__filters">
       <div class="users-page__search">
-        <svg class="users-page__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <circle cx="11" cy="11" r="8" stroke-width="2"/>
-          <line x1="21" y1="21" x2="16.65" y2="16.65" stroke-width="2"/>
-        </svg>
+        <i class="bi bi-search users-page__search-icon"></i>
         <input
             v-model="searchQuery"
             type="text"
-            class="users-page__search-input"
+            class="form-control"
             placeholder="Поиск по логину, email или имени"
         />
       </div>
 
       <div class="users-page__filter-group">
-        <select v-model="roleFilter" class="users-page__filter-select">
+        <select v-model="roleFilter" class="form-select form-select-sm">
           <option value="ALL">Все роли</option>
           <option v-for="role in roles" :key="role.value" :value="role.value">
             {{ role.label }}
           </option>
         </select>
 
-        <select v-model="statusFilter" class="users-page__filter-select">
+        <select v-model="statusFilter" class="form-select form-select-sm">
           <option value="ALL">Все статусы</option>
           <option value="ACTIVE">Активные</option>
           <option value="INACTIVE">Неактивные</option>
         </select>
 
-        <button class="users-page__filter-reset" @click="resetFilters" title="Сбросить фильтры">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M23 4v6h-6M1 20v-6h6" stroke-width="2"/>
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" stroke-width="2"/>
-          </svg>
+        <button class="btn btn-outline-secondary btn-sm" @click="resetFilters" title="Сбросить фильтры">
+          <i class="bi bi-arrow-repeat"></i>
         </button>
       </div>
     </div>
 
     <!-- Таблица пользователей -->
     <div class="users-page__table-container">
-      <table class="users-page__table">
-        <thead>
-        <tr>
-          <th>Пользователь</th>
-          <th>Email</th>
-          <th>Роль</th>
-          <th>Статус</th>
-          <th>Дата регистрации</th>
-          <th>Действия</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- Состояние загрузки -->
-        <tr v-if="isLoading" class="users-page__table-loading">
-          <td colspan="6">
-            <div class="users-page__loader"></div>
-            <span>Загрузка пользователей...</span>
-          </td>
-        </tr>
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+          <thead>
+          <tr>
+            <th>Пользователь</th>
+            <th>Email</th>
+            <th>Роль</th>
+            <th>Статус</th>
+            <th>Дата регистрации</th>
+            <th class="table__cell--actions-head">Действия</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-if="isLoading" class="table__row">
+            <td colspan="6" class="table__loading-cell">
+              <div class="users-page__loader"></div>
+              <span>Загрузка пользователей...</span>
+            </td>
+          </tr>
 
-        <!-- Нет данных -->
-        <tr v-else-if="!filteredUsers.length" class="users-page__table-empty">
-          <td colspan="6">
-            <svg class="users-page__empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <circle cx="12" cy="12" r="10" stroke-width="2"/>
-              <line x1="8" y1="12" x2="16" y2="12" stroke-width="2"/>
-            </svg>
-            <p>Пользователи не найдены</p>
-            <button class="users-page__empty-reset" @click="resetFilters">Сбросить фильтры</button>
-          </td>
-        </tr>
+          <tr v-else-if="!filteredUsers.length" class="table__row">
+            <td colspan="6" class="table__empty-cell">
+              <i class="bi bi-person-x users-page__empty-icon"></i>
+              <p>Пользователи не найдены</p>
+              <button class="btn btn-outline-secondary btn-sm" @click="resetFilters">Сбросить фильтры</button>
+            </td>
+          </tr>
 
-        <!-- Список пользователей -->
-        <tr v-else v-for="user in filteredUsers" :key="user.id" class="users-page__table-row">
+          <tr v-else v-for="user in filteredUsers" :key="user.id" class="table__row">
           <td>
             <div class="users-page__user-info">
               <div class="users-page__user-avatar" :style="{ backgroundColor: `var(--${getRoleColor(user.role)})` }">
@@ -416,32 +404,25 @@ onMounted(() => {
           <td>
             <div class="users-page__actions">
               <button
-                  class="users-page__action-btn users-page__action-btn--edit"
+                  class="btn btn-sm btn-outline-primary"
                   @click="openEditModal(user)"
                   title="Редактировать"
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke-width="2"/>
-                </svg>
+                <i class="bi bi-pencil"></i>
               </button>
               <button
-                  class="users-page__action-btn users-page__action-btn--delete"
+                  class="btn btn-danger btn-sm"
                   @click="removeUser(user.id)"
                   title="Удалить"
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <polyline points="3 6 5 6 21 6" stroke-width="2"/>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                        stroke-width="2"/>
-                  <line x1="10" y1="11" x2="10" y2="17" stroke-width="2"/>
-                  <line x1="14" y1="11" x2="14" y2="17" stroke-width="2"/>
-                </svg>
+                <i class="bi bi-trash"></i>
               </button>
             </div>
           </td>
         </tr>
         </tbody>
-      </table>
+        </table>
+      </div>
     </div>
 
 <!--    &lt;!&ndash; ОТЛАДОЧНАЯ ИНФОРМАЦИЯ &ndash;&gt;-->
@@ -465,37 +446,23 @@ onMounted(() => {
 <!--    </div>-->
 
     <!-- Пагинация -->
-    <div v-if="totalPages > 1" class="users-page__pagination">
-      <button
-          class="users-page__pagination-btn"
-          :disabled="currentPage === 0"
-          @click="goToPage(currentPage - 1)"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <polyline points="15 18 9 12 15 6" stroke-width="2"/>
-        </svg>
-      </button>
-
-      <button
-          v-for="page in totalPages"
-          :key="page"
-          class="users-page__pagination-btn"
-          :class="{ 'users-page__pagination-btn--active': currentPage === page - 1 }"
-          @click="goToPage(page - 1)"
-      >
-        {{ page }}
-      </button>
-
-      <button
-          class="users-page__pagination-btn"
-          :disabled="currentPage === totalPages - 1"
-          @click="goToPage(currentPage + 1)"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <polyline points="9 18 15 12 9 6" stroke-width="2"/>
-        </svg>
-      </button>
-    </div>
+    <nav v-if="totalPages > 1" class="d-flex justify-content-center mt-4 mb-3" aria-label="Пагинация пользователей">
+      <ul class="pagination pagination-lg">
+        <li class="page-item" :class="{ disabled: currentPage === 0 }">
+          <button type="button" class="page-link" :disabled="currentPage === 0" @click="goToPage(currentPage - 1)" aria-label="Назад">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+        </li>
+        <li v-for="page in totalPages" :key="page" class="page-item" :class="{ active: currentPage === page - 1 }">
+          <button type="button" class="page-link" @click="goToPage(page - 1)">{{ page }}</button>
+        </li>
+        <li class="page-item" :class="{ disabled: currentPage === totalPages - 1 }">
+          <button type="button" class="page-link" :disabled="currentPage === totalPages - 1" @click="goToPage(currentPage + 1)" aria-label="Вперёд">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </li>
+      </ul>
+    </nav>
 
     <!-- Модальное окно создания/редактирования -->
     <transition name="modal">
@@ -511,47 +478,47 @@ onMounted(() => {
           <form class="users-page__modal-form" @submit.prevent="saveUser">
             <div class="users-page__form-grid">
               <div class="users-page__form-group">
-                <label class="users-page__form-label">
-                  Логин <span class="users-page__form-required">*</span>
+                <label class="form-label">
+                  Логин <span class="text-danger">*</span>
                 </label>
                 <input
                     v-model="formUser.login"
                     type="text"
-                    class="users-page__form-input"
+                    class="form-control"
                     placeholder="john_doe"
                     required
                 />
               </div>
 
               <div class="users-page__form-group">
-                <label class="users-page__form-label">
-                  Email <span class="users-page__form-required">*</span>
+                <label class="form-label">
+                  Email <span class="text-danger">*</span>
                 </label>
                 <input
                     v-model="formUser.email"
                     type="email"
-                    class="users-page__form-input"
+                    class="form-control"
                     placeholder="john@example.com"
                     required
                 />
               </div>
 
               <div class="users-page__form-group">
-                <label class="users-page__form-label">
-                  ФИО <span class="users-page__form-required">*</span>
+                <label class="form-label">
+                  ФИО <span class="text-danger">*</span>
                 </label>
                 <input
                     v-model="formUser.fullName"
                     type="text"
-                    class="users-page__form-input"
+                    class="form-control"
                     placeholder="Иванов Иван Иванович"
                     required
                 />
               </div>
 
               <div class="users-page__form-group">
-                <label class="users-page__form-label">Роль</label>
-                <select v-model="formUser.role" class="users-page__form-select">
+                <label class="form-label">Роль</label>
+                <select v-model="formUser.role" class="form-select">
                   <option v-for="role in roles" :key="role.value" :value="role.value">
                     {{ role.label }}
                   </option>
@@ -559,13 +526,13 @@ onMounted(() => {
               </div>
 
               <div v-if="!isEditMode" class="users-page__form-group">
-                <label class="users-page__form-label">
-                  Пароль <span class="users-page__form-required">*</span>
+                <label class="form-label">
+                  Пароль <span class="text-danger">*</span>
                 </label>
                 <input
                     v-model="formUser.password"
                     type="password"
-                    class="users-page__form-input"
+                    class="form-control"
                     placeholder="Минимум 6 символов"
                     :required="!isEditMode"
                 />
@@ -578,6 +545,29 @@ onMounted(() => {
                   <span class="users-page__checkbox-label">Активен</span>
                 </label>
               </div>
+
+              <!-- Права доступа к заявкам — при создании и редактировании -->
+              <div v-if="formUser.role !== 'ADMIN'" class="users-page__permissions-card">
+                <div class="users-page__permissions-header">
+                  <i class="bi bi-shield-lock users-page__permissions-icon"></i>
+                  <span class="users-page__permissions-title">Права доступа к заявкам на оценку</span>
+                </div>
+                <p class="users-page__permissions-desc">Выберите, какие действия разрешены этому пользователю</p>
+                <div class="users-page__permissions-list">
+                  <label class="users-page__checkbox users-page__checkbox--permission">
+                    <input v-model="formUser.canEditEvaluationRequests" type="checkbox"/>
+                    <span class="users-page__checkbox-custom"></span>
+                    <span class="users-page__checkbox-label">Редактировать заявки</span>
+                    <i class="bi bi-pencil-square users-page__permission-icon" title="Редактирование"></i>
+                  </label>
+                  <label class="users-page__checkbox users-page__checkbox--permission">
+                    <input v-model="formUser.canDeleteEvaluationRequests" type="checkbox"/>
+                    <span class="users-page__checkbox-custom"></span>
+                    <span class="users-page__checkbox-label">Удалять заявки</span>
+                    <i class="bi bi-trash users-page__permission-icon" title="Удаление"></i>
+                  </label>
+                </div>
+              </div>
             </div>
 
             <div v-if="errorMessage" class="users-page__form-error">
@@ -587,21 +577,19 @@ onMounted(() => {
             <div class="users-page__modal-actions">
               <button
                   type="button"
-                  class="users-page__modal-btn users-page__modal-btn--secondary"
+                  class="btn btn-secondary"
                   @click="isModalOpen = false"
               >
                 Отмена
               </button>
               <button
                   type="submit"
-                  class="users-page__modal-btn users-page__modal-btn--primary"
+                  class="btn btn-primary"
                   :disabled="isSaving"
               >
                 <span v-if="!isSaving">{{ isEditMode ? 'Сохранить' : 'Создать' }}</span>
-                <span v-else class="users-page__modal-loading">
-                  <svg class="users-page__modal-spinner" viewBox="0 0 50 50">
-                    <circle class="users-page__modal-spinner-path" cx="25" cy="25" r="20" fill="none" stroke-width="5"/>
-                  </svg>
+                <span v-else class="users-page__modal-loading d-inline-flex align-items-center gap-2">
+                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                   Сохранение...
                 </span>
               </button>
@@ -616,9 +604,9 @@ onMounted(() => {
 <style scoped>
 /* === Основные переменные === */
 .users-page {
-  --primary: #667eea;
-  --primary-dark: #5a67d8;
-  --secondary: #764ba2;
+  --primary: var(--color-primary);
+  --primary-dark: var(--color-primary-hover);
+  --secondary: var(--color-primary-hover);
   --success: #48bb78;
   --warning: #ed8936;
   --danger: #f56565;
@@ -629,7 +617,7 @@ onMounted(() => {
   --white: #ffffff;
 
   padding: 2rem;
-  background: #f0f2f5;
+  background: var(--color-bg);
   min-height: 100vh;
 }
 
@@ -787,39 +775,13 @@ onMounted(() => {
   height: 18px;
 }
 
-/* === Таблица === */
 .users-page__table-container {
-  background: var(--white);
-  border-radius: 16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
-  overflow: auto;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
   margin-bottom: 2rem;
-}
-
-.users-page__table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.users-page__table th {
-  text-align: left;
-  padding: 1rem 1.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--gray);
-  border-bottom: 2px solid #e2e8f0;
-  background: #f8fafc;
-}
-
-.users-page__table td {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
-  color: var(--dark);
-}
-
-.users-page__table-row:hover {
-  background: #f8fafc;
 }
 
 /* === Информация о пользователе === */
@@ -970,25 +932,6 @@ onMounted(() => {
   box-shadow: 0 4px 10px rgba(102, 126, 234, 0.2);
 }
 
-.users-page__action-btn--delete:hover {
-  border-color: var(--danger);
-  color: var(--danger);
-  box-shadow: 0 4px 10px rgba(245, 101, 101, 0.2);
-}
-
-/* === Состояния таблицы === */
-.users-page__table-loading {
-  text-align: center;
-  padding: 4rem !important;
-  color: var(--gray);
-}
-
-.users-page__table-empty {
-  text-align: center;
-  padding: 4rem !important;
-  color: var(--gray);
-}
-
 .users-page__loader {
   width: 50px;
   height: 50px;
@@ -1026,44 +969,6 @@ onMounted(() => {
   margin-top: 1rem;
 }
 
-/* === Пагинация === */
-.users-page__pagination {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.users-page__pagination-btn {
-  min-width: 40px;
-  height: 40px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: var(--white);
-  color: var(--dark);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  font-size: 0.9rem;
-}
-
-.users-page__pagination-btn:hover:not(:disabled) {
-  border-color: var(--primary);
-  color: var(--primary);
-}
-
-.users-page__pagination-btn--active {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  color: white;
-  border: none;
-}
-
-.users-page__pagination-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 /* === Модальное окно === */
 .users-page__modal-overlay {
   position: fixed;
@@ -1080,13 +985,14 @@ onMounted(() => {
 }
 
 .users-page__modal {
-  background: var(--white);
-  border-radius: 20px;
-  width: 90%;
-  max-width: 600px;
-  max-height: 90vh;
+  background: var(--color-bg-card);
+  border-radius: 12px;
+  width: 95%;
+  max-width: 640px;
+  max-height: 92vh;
   overflow-y: auto;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border-light);
 }
 
 .modal-enter-active,
@@ -1104,33 +1010,41 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--color-border-light);
+  background: linear-gradient(to bottom, #fff 0%, #f8fafc 100%);
 }
 
 .users-page__modal-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--dark);
+  color: var(--color-text);
   margin: 0;
 }
 
 .users-page__modal-close {
-  width: 30px;
-  height: 30px;
-  border: none;
-  background: none;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  border-radius: var(--radius-md);
   font-size: 1.5rem;
-  color: var(--gray);
+  line-height: 1;
+  color: var(--color-text-muted);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 
 .users-page__modal-close:hover {
-  color: var(--danger);
+  background: var(--color-bg-hover);
+  color: var(--color-text);
+  border-color: var(--color-border);
 }
 
 /* === Форма === */
@@ -1142,7 +1056,9 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .users-page__form-group {
@@ -1163,7 +1079,7 @@ onMounted(() => {
   margin-bottom: 0.5rem;
 }
 
-.users-page__form-required {
+.text-danger {
   color: var(--danger);
 }
 
@@ -1241,6 +1157,77 @@ onMounted(() => {
   color: var(--dark);
 }
 
+/* === Блок прав доступа (создание и редактирование) === */
+.users-page__permissions-card {
+  margin-top: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  border-left: 4px solid var(--primary, #667eea);
+}
+
+.users-page__permissions-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.375rem;
+}
+
+.users-page__permissions-icon {
+  font-size: 1.125rem;
+  color: var(--primary, #667eea);
+}
+
+.users-page__permissions-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.users-page__permissions-desc {
+  font-size: 0.8125rem;
+  color: #64748b;
+  margin: 0 0 1rem;
+  line-height: 1.4;
+}
+
+.users-page__permissions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.users-page__checkbox--permission {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.users-page__checkbox--permission:hover {
+  border-color: #cbd5e1;
+}
+
+.users-page__checkbox--permission input:checked ~ .users-page__checkbox-custom {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  border-color: transparent;
+}
+
+.users-page__checkbox--permission .users-page__checkbox-label {
+  flex: 1;
+  font-weight: 500;
+}
+
+.users-page__permission-icon {
+  font-size: 1rem;
+  color: #94a3b8;
+}
+
 /* === Ошибка формы === */
 .users-page__form-error {
   padding: 1rem;
@@ -1257,7 +1244,9 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
-  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--color-border-light);
 }
 
 .users-page__modal-btn {
@@ -1353,8 +1342,8 @@ onMounted(() => {
     align-items: flex-start;
   }
 
-  .users-page__table th:nth-child(2),
-  .users-page__table td:nth-child(2) {
+  .users-page__table-container .table th:nth-child(2),
+  .users-page__table-container .table td:nth-child(2) {
     display: none;
   }
 
@@ -1372,8 +1361,8 @@ onMounted(() => {
     width: 100%;
   }
 
-  .users-page__table th:nth-child(4),
-  .users-page__table td:nth-child(4) {
+  .users-page__table-container .table th:nth-child(4),
+  .users-page__table-container .table td:nth-child(4) {
     display: none;
   }
 

@@ -1,0 +1,105 @@
+/* Подключение переменных и переопределение Bootstrap под единую палитру */
+@import './variables.css';
+
+:root {
+  --bs-primary: var(--color-primary);
+  --bs-primary-rgb: 91, 33, 182;
+  --bs-body-color: var(--color-text);
+  --bs-body-bg: var(--color-bg);
+  --bs-border-color: var(--color-border);
+  --bs-border-radius: var(--radius-md);
+  --bs-border-radius-sm: var(--radius-sm);
+  --bs-border-radius-lg: var(--radius-lg);
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--color-primary);
+  --bs-btn-border-color: var(--color-primary);
+  --bs-btn-hover-bg: var(--color-primary-hover);
+  --bs-btn-hover-border-color: var(--color-primary-hover);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.2rem var(--color-primary-light);
+}
+
+.link-primary {
+  color: var(--color-primary) !important;
+}
+
+.bg-light {
+  background-color: var(--color-bg) !important;
+}
+
+.text-muted {
+  color: var(--color-text-muted) !important;
+}
+
+.border {
+  border-color: var(--color-border) !important;
+}
+
+/* --- Bootstrap таблицы: серьёзный вид, белый фон --- */
+.table {
+  --bs-table-bg: var(--color-bg-card);
+  --bs-table-striped-bg: var(--color-bg);
+  --bs-table-hover-bg: var(--color-bg-hover);
+  --bs-table-border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.table > :not(caption) > * > * {
+  padding: 0.75rem 1rem;
+  border-bottom-width: 1px;
+}
+
+.table > thead {
+  vertical-align: bottom;
+}
+
+.table > thead th {
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg) !important;
+  border-bottom-width: 2px;
+  border-bottom-color: var(--color-border);
+}
+
+.table.table-bordered > :not(caption) > * {
+  border-width: 0 1px;
+}
+
+.table.table-bordered > :not(caption) > * > * {
+  border-width: 0 1px 1px 0;
+}
+
+.table.table-bordered > :not(caption) > * > *:first-child {
+  border-left-width: 1px;
+}
+
+.table-hover > tbody > tr:hover > * {
+  background-color: var(--color-bg-hover) !important;
+}
+
+/* --- Пагинация Bootstrap --- */
+.pagination {
+  --bs-pagination-color: var(--color-primary);
+  --bs-pagination-hover-color: var(--color-primary-hover);
+  --bs-pagination-focus-color: var(--color-primary-hover);
+  --bs-pagination-active-bg: var(--color-primary);
+  --bs-pagination-active-border-color: var(--color-primary);
+  --bs-pagination-border-radius: var(--radius-md);
+}
+
+.page-link {
+  font-weight: 500;
+}
+
+.page-item.disabled .page-link {
+  color: var(--color-text-muted);
+}

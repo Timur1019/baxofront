@@ -1,6 +1,5 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useI18n } from '../../i18n/useI18n'
 import { useStatusLabel } from '../../composables/useStatusLabel'
 import { useFormatting } from '../../composables/useFormatting'
@@ -8,10 +7,10 @@ import { useFileDownload } from '../../composables/useFileDownload'
 import { useAppraisalPurpose } from '../../composables/useAppraisalPurpose'
 import { getMyEvaluationRequests, getStatuses, createEvaluationRequestWithDocument, downloadReport } from '../../api/evaluationApi'
 import ClientRequestViewModal from '../../components/client/ClientRequestViewModal.vue'
+import ReportQrTrigger from '../../components/shared/ReportQrTrigger.vue'
 import { getAppraisalPurposes } from '../../api/appraisalPurposesApi'
 
 const { t } = useI18n()
-const router = useRouter()
 const { statusLabel } = useStatusLabel()
 const { formatDate, formatSum } = useFormatting()
 const { triggerDownload } = useFileDownload()
@@ -143,19 +142,14 @@ async function submitAdd() {
       ownerPhone: form.value.ownerPhone.trim(),
       bankEmployeePhone: form.value.bankEmployeePhone.trim(),
     }
-    const created = await createEvaluationRequestWithDocument(dto, null, techPassportFile.value)
+    await createEvaluationRequestWithDocument(dto, null, techPassportFile.value)
     closeAddModal()
     load()
-    router.push({ name: 'client-request-detail', params: { id: created.id } })
   } catch (e) {
     formError.value = e.response?.data?.message || e.message || t('client.formErrorSaveFailed')
   } finally {
     formLoading.value = false
   }
-}
-
-function goToDetail(id) {
-  router.push({ name: 'client-request-detail', params: { id } })
 }
 
 function openViewModal(item) {
@@ -167,6 +161,11 @@ function openViewModal(item) {
 function closeViewModal() {
   showViewModal.value = false
   document.body.style.overflow = ''
+}
+
+function onRequestDeleted() {
+  closeViewModal()
+  load()
 }
 
 async function handleDownloadReport(item) {
@@ -185,46 +184,46 @@ async function handleDownloadReport(item) {
     <div class="client-requests-page__toolbar">
       <div class="client-requests-page__filters">
         <div class="client-requests-page__filter client-requests-page__filter--search">
-          <label class="client-requests-page__filter-label">{{ t('client.filterSearch') }}</label>
-          <div class="client-requests-page__search-row">
+          <label class="form-label small text-muted mb-1">{{ t('client.filterSearch') }}</label>
+          <div class="input-group">
             <input
                 v-model="filterSearch"
                 type="text"
-                class="client-requests-page__search-input"
+                class="form-control"
                 :placeholder="t('client.filterSearchPlaceholder')"
                 @keydown.enter.prevent="load()"
             />
-            <button type="button" class="client-requests-page__search-btn" @click="load()" :aria-label="t('client.filterSearch')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg>
+            <button type="button" class="btn btn-primary" @click="load()" :aria-label="t('client.filterSearch')">
+              <i class="bi bi-search"></i>
             </button>
           </div>
         </div>
         <div class="client-requests-page__filter">
-          <label class="client-requests-page__filter-label">{{ t('client.filterStatus') }}</label>
-          <select v-model="filterStatus" class="client-requests-page__select">
+          <label class="form-label small text-muted mb-1">{{ t('client.filterStatus') }}</label>
+          <select v-model="filterStatus" class="form-select form-select-sm">
             <option :value="null">{{ t('client.allStatuses') }}</option>
             <option v-for="s in statuses" :key="s" :value="s">{{ statusLabel(s) }}</option>
           </select>
         </div>
         <div class="client-requests-page__filter">
-          <label class="client-requests-page__filter-label">{{ t('client.filterDateFrom') }}</label>
-          <input v-model="filterDateFrom" type="date" class="client-requests-page__select client-requests-page__date-input" />
+          <label class="form-label small text-muted mb-1">{{ t('client.filterDateFrom') }}</label>
+          <input v-model="filterDateFrom" type="date" class="form-control form-control-sm" />
         </div>
         <div class="client-requests-page__filter">
-          <label class="client-requests-page__filter-label">{{ t('client.filterDateTo') }}</label>
-          <input v-model="filterDateTo" type="date" class="client-requests-page__select client-requests-page__date-input" />
+          <label class="form-label small text-muted mb-1">{{ t('client.filterDateTo') }}</label>
+          <input v-model="filterDateTo" type="date" class="form-control form-control-sm" />
         </div>
       </div>
       <div class="client-requests-page__toolbar-actions">
-        <button type="button" class="client-requests-page__add-btn" @click="openAddModal">
+        <button type="button" class="btn btn-primary" @click="openAddModal">
           {{ t('client.addButton') }}
         </button>
       </div>
     </div>
 
     <section class="client-requests-page__section">
-      <div class="client-requests-page__table-wrap">
-        <table class="client-requests-page__table">
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover">
           <thead>
           <tr>
             <th>{{ t('client.tableNo') }}</th>
@@ -235,22 +234,22 @@ async function handleDownloadReport(item) {
             <th>{{ t('client.tableCompletedAt') }}</th>
             <th>{{ t('client.tableCostSum') }}</th>
             <th>{{ t('client.tableReport') }}</th>
-            <th class="client-requests-page__th-icon"></th>
+            <th class="table__cell--actions-head"></th>
           </tr>
           </thead>
           <tbody>
-          <tr v-if="loading">
-            <td colspan="9" class="client-requests-page__loading-cell">{{ t('client.loading') }}</td>
+          <tr v-if="loading" class="table__row">
+            <td colspan="9" class="table__loading-cell">{{ t('client.loading') }}</td>
           </tr>
-          <tr v-else-if="list.length === 0">
-            <td colspan="9" class="client-requests-page__empty-cell">{{ t('client.noData') }}</td>
+          <tr v-else-if="list.length === 0" class="table__row">
+            <td colspan="9" class="table__empty-cell">{{ t('client.noData') }}</td>
           </tr>
           <tr
               v-else
               v-for="(item, idx) in list"
               :key="item.id"
-              class="client-requests-page__row"
-              @click="goToDetail(item.id)"
+              class="table__row table__row--clickable"
+              @click="openViewModal(item)"
           >
             <td>{{ (currentPage * pageSize) + idx + 1 }}</td>
             <td>{{ item.appraisedObjectName || '—' }}</td>
@@ -273,17 +272,17 @@ async function handleDownloadReport(item) {
               <span v-else>—</span>
             </td>
             <td>
-              <button
-                type="button"
-                class="client-requests-page__view-btn"
-                :title="t('client.view')"
-                @click.stop="openViewModal(item)"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12c0 0 4-8 11-8s11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                  <circle cx="12" cy="12" r="3.5"/>
-                </svg>
-              </button>
+              <div class="client-requests-page__actions">
+                <ReportQrTrigger :request-id="item.id" />
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  :title="t('client.view')"
+                  @click.stop="openViewModal(item)"
+                >
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
             </td>
           </tr>
           </tbody>
@@ -296,7 +295,7 @@ async function handleDownloadReport(item) {
         <div class="modal-container">
           <div class="modal-header">
             <h2 class="modal-title">
-              <span class="modal-title-icon">🚗</span>
+              <i class="bi bi-truck modal-title-icon"></i>
               {{ t('client.vehicleModalTitle') }}
             </h2>
             <button class="modal-close" @click="closeAddModal">×</button>
@@ -304,53 +303,53 @@ async function handleDownloadReport(item) {
           <form class="modal-form" @submit.prevent="submitAdd">
             <div class="modal-form__grid">
               <div class="modal-form__group">
-                <label class="modal-form__label">
-                  {{ t('client.vehicleType') }} <span class="modal-form__required">*</span>
+                <label class="form-label">
+                  {{ t('client.vehicleType') }} <span class="text-danger">*</span>
                 </label>
-                <select v-model="form.vehicleType" class="modal-form__select" required>
+                <select v-model="form.vehicleType" class="form-select" required>
                   <option value="">{{ t('client.vehicleTypePlaceholder') }}</option>
                   <option v-for="vt in vehicleTypes" :key="vt.value" :value="vt.value">{{ t('client.' + vt.labelKey) }}</option>
                 </select>
               </div>
               <div class="modal-form__group">
-                <label class="modal-form__label">
-                  {{ t('client.techPassportNumber') }} <span class="modal-form__required">*</span>
+                <label class="form-label">
+                  {{ t('client.techPassportNumber') }} <span class="text-danger">*</span>
                 </label>
                 <input
                     v-model="form.techPassportNumber"
                     type="text"
-                    class="modal-form__input"
+                    class="form-control"
                     :placeholder="t('client.techPassportNumberPlaceholder')"
                     required
                 />
               </div>
               <div class="modal-form__group">
-                <label class="modal-form__label">
-                  {{ t('client.licensePlate') }} <span class="modal-form__required">*</span>
+                <label class="form-label">
+                  {{ t('client.licensePlate') }} <span class="text-danger">*</span>
                 </label>
                 <input
                     v-model="form.licensePlate"
                     type="text"
-                    class="modal-form__input"
+                    class="form-control"
                     :placeholder="t('client.licensePlatePlaceholder')"
                     required
                 />
               </div>
               <div class="modal-form__group">
-                <label class="modal-form__label">{{ t('client.modalBorrowerInn') }}</label>
+                <label class="form-label">{{ t('client.modalBorrowerInn') }}</label>
                 <input
                     v-model="form.borrowerInn"
                     type="text"
-                    class="modal-form__input"
+                    class="form-control"
                     :placeholder="t('client.modalBorrowerInnPlaceholder')"
                 />
               </div>
               <div class="modal-form__group modal-form__group--full">
-                <label class="modal-form__label">
-                  {{ t('client.techPassportDoc') }} <span class="modal-form__required">*</span>
+                <label class="form-label">
+                  {{ t('client.techPassportDoc') }} <span class="text-danger">*</span>
                 </label>
                 <div class="modal-form__file-zone" @click="$refs.fileInput.click()">
-                  <div class="modal-form__file-icon">📎</div>
+                  <i class="bi bi-paperclip modal-form__file-icon"></i>
                   <div class="modal-form__file-text">
                     {{ techPassportFile ? techPassportFile.name : t('client.modalFileZone') }}
                   </div>
@@ -367,48 +366,48 @@ async function handleDownloadReport(item) {
                 />
               </div>
               <div class="modal-form__group">
-                <label class="modal-form__label">
-                  {{ t('client.modalAppraisalPurpose') }} <span class="modal-form__required">*</span>
+                <label class="form-label">
+                  {{ t('client.modalAppraisalPurpose') }} <span class="text-danger">*</span>
                 </label>
-                <select v-model="form.appraisalPurpose" class="modal-form__select" required>
+                <select v-model="form.appraisalPurpose" class="form-select" required>
                   <option value="">{{ t('client.selectOption') }}</option>
                   <option v-for="p in appraisalPurposes" :key="p.id" :value="p.code">{{ purposeName(p) }}</option>
                 </select>
               </div>
               <div class="modal-form__group">
-                <label class="modal-form__label">
-                  {{ t('client.modalOwnerPhone') }} <span class="modal-form__required">*</span>
+                <label class="form-label">
+                  {{ t('client.modalOwnerPhone') }} <span class="text-danger">*</span>
                 </label>
                 <input
                     v-model="form.ownerPhone"
                     type="tel"
-                    class="modal-form__input"
+                    class="form-control"
                     placeholder="+998 (__) ___ ____"
                     required
                 />
               </div>
               <div class="modal-form__group">
-                <label class="modal-form__label">
-                  {{ t('client.modalBankPhone') }} <span class="modal-form__required">*</span>
+                <label class="form-label">
+                  {{ t('client.modalBankPhone') }} <span class="text-danger">*</span>
                 </label>
                 <input
                     v-model="form.bankEmployeePhone"
                     type="tel"
-                    class="modal-form__input"
+                    class="form-control"
                     placeholder="+998 (__) ___ ____"
                     required
                 />
               </div>
             </div>
             <div v-if="formError" class="modal-form__error">
-              <span class="modal-form__error-icon">⚠️</span>
+              <i class="bi bi-exclamation-triangle-fill modal-form__error-icon"></i>
               {{ formError }}
             </div>
-            <div class="modal-form__actions">
-              <button type="button" class="modal-form__btn modal-form__btn--secondary" @click="closeAddModal">
+            <div class="modal-form__actions d-flex gap-2 justify-content-end">
+              <button type="button" class="btn btn-secondary" @click="closeAddModal">
                 {{ t('client.modalBack') }}
               </button>
-              <button type="submit" class="modal-form__btn modal-form__btn--primary" :disabled="formLoading">
+              <button type="submit" class="btn btn-primary" :disabled="formLoading">
                 <span v-if="!formLoading">{{ t('client.modalSave') }}</span>
                 <span v-else class="modal-form__loading">
                   <span class="modal-form__spinner"></span>
@@ -425,25 +424,14 @@ async function handleDownloadReport(item) {
       :request-id="viewRequestId"
       :show="showViewModal"
       @close="closeViewModal"
+      @deleted="onRequestDeleted"
     />
   </div>
 </template>
 
 <style scoped>
-@import '../../styles/client/requests-list.css';
-@import '../../styles/client/requests-modal.css';
+@import '../../styles/requests-list.css';
+@import '../../styles/requests-modal.css';
 
 .client-requests-page__th-icon { width: 52px; }
-.client-requests-page__view-btn {
-  width: 40px; height: 40px; padding: 0; border: none;
-  background: linear-gradient(135deg, rgba(111,66,193,0.08) 0%, rgba(111,66,193,0.04) 100%);
-  color: var(--color-accent, #6f42c1); cursor: pointer; border-radius: 10px;
-  display: inline-flex; align-items: center; justify-content: center;
-  transition: all 0.25s ease; box-shadow: 0 1px 3px rgba(111,66,193,0.12);
-}
-.client-requests-page__view-btn:hover {
-  background: linear-gradient(135deg, var(--color-accent, #6f42c1) 0%, #5a32a8 100%);
-  color: #fff; transform: scale(1.08); box-shadow: 0 4px 12px rgba(111,66,193,0.35);
-}
-.client-requests-page__view-btn svg { width: 20px; height: 20px; }
 </style>

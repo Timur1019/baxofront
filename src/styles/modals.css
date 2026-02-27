@@ -1,47 +1,228 @@
-.modal-backdrop {
+/* Единые модальные окна: Bootstrap, белый/светлый стиль, без фиолетового */
+@import './variables.css';
+
+/* === Overlay === */
+.modal-backdrop,
+.modal-overlay,
+.view-modal-overlay,
+.users-page__modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.55);
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 50;
-  backdrop-filter: blur(4px);
+  z-index: 1050;
+  padding: 1.5rem;
 }
 
-.modal-dialog {
-  max-width: 520px;
+/* === Container === */
+.modal-dialog,
+.modal-container,
+.view-modal,
+.users-page__modal {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
   width: 100%;
-}
-
-.modal-content {
-  border-radius: 20px;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   border: 1px solid var(--color-border-light);
-  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.45);
-  background: linear-gradient(135deg, var(--color-bg-card), var(--color-bg));
 }
 
+.modal-container--wide,
 .client-modal-dialog {
-  max-width: 920px;
+  max-width: 960px;
 }
 
-.client-modal-content {
-  padding: 22px 22px 18px !important;
+.modal-container--narrow {
+  max-width: 480px;
 }
 
-.modal-content .form-label {
-  font-size: 13px;
-  color: var(--color-text-secondary);
+/* === Header — белый/светлый, не фиолетовый === */
+.modal-header,
+.view-modal__header,
+.users-page__modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: var(--color-bg-card);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
+.modal-title,
+.view-modal__title,
+.users-page__modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal-title-icon,
+.view-modal__section-icon {
+  font-size: 1.25rem;
+  color: var(--color-text-muted);
+}
+
+/* === Кнопка закрытия — белая/серая, не фиолетовая === */
+.modal-close,
+.view-modal__close,
+.users-page__modal-close {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  color: var(--color-text-muted);
+  border-radius: var(--radius-md);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.modal-close:hover,
+.view-modal__close:hover,
+.users-page__modal-close:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.modal-close i,
+.view-modal__close i {
+  font-size: 1.125rem;
+}
+
+/* === Body === */
+.modal-body,
+.modal-form,
+.view-modal__body,
+.users-page__modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* === Кнопки в header (например «Скачать») — outline, не фиолетовая заливка === */
+.view-modal__header-btn {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  color: var(--color-text);
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.view-modal__header-btn:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-text-muted);
+}
+
+/* === Inputs — Bootstrap === */
 .modal-content .form-control,
-.modal-content .form-select {
+.modal-content .form-select,
+.modal-form .form-control,
+.modal-form .form-select {
   border-radius: var(--radius-md);
   border-color: var(--color-border);
 }
 
 .modal-content .form-control:focus,
-.modal-content .form-select:focus {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 1px var(--color-accent-light);
+.modal-content .form-select:focus,
+.modal-form .form-control:focus,
+.modal-form .form-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.2rem var(--color-primary-light);
+}
+
+/* === Footer === */
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--color-border-light);
+  background: var(--color-bg);
+}
+
+/* === Кнопки в модалках — нейтральные, не фиолетовые === */
+.modal-content .btn-primary,
+.modal-form .btn-primary,
+.modal-form__actions .btn-primary,
+.users-page__modal-actions .btn-primary {
+  background: var(--color-text);
+  border-color: var(--color-text);
+  color: #fff;
+}
+
+.modal-content .btn-primary:hover:not(:disabled),
+.modal-form .btn-primary:hover:not(:disabled),
+.modal-form__actions .btn-primary:hover:not(:disabled),
+.users-page__modal-actions .btn-primary:hover:not(:disabled) {
+  background: var(--color-text-secondary);
+  border-color: var(--color-text-secondary);
+  color: #fff;
+}
+
+.modal-content .btn-secondary,
+.modal-form .btn-secondary,
+.modal-form__actions .btn-secondary,
+.users-page__modal-actions .btn-secondary {
+  background: var(--color-bg-card);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.modal-content .btn-secondary:hover,
+.modal-form .btn-secondary:hover,
+.modal-form__actions .btn-secondary:hover,
+.users-page__modal-actions .btn-secondary:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-text-muted);
+  color: var(--color-text);
+}
+
+/* === Разделители секций — чёткое визуальное разделение блоков === */
+.modal-form__divider,
+.modal-section-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 1.25rem 0;
+  flex-shrink: 0;
+}
+
+.modal-form__section-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.modal-form__group + .modal-form__group {
+  border-top: none;
+}
+
+/* Разделитель между секциями и кнопками */
+.modal-form__actions {
+  border-top: 1px solid var(--color-border-light);
+  padding-top: 1.25rem;
 }

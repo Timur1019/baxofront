@@ -151,10 +151,7 @@ onMounted(loadSummary)
       </div>
       <div class="dashboard__actions">
         <button class="dashboard__refresh-btn" @click="loadSummary" :disabled="isLoading">
-          <svg class="dashboard__refresh-icon" :class="{ 'dashboard__refresh-icon--spin': isLoading }" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M23 4v6h-6M1 20v-6h6" stroke-width="2"/>
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" stroke-width="2"/>
-          </svg>
+          <i class="bi bi-arrow-repeat dashboard__refresh-icon" :class="{ 'dashboard__refresh-icon--spin': isLoading }"></i>
           Обновить
         </button>
       </div>
@@ -164,10 +161,7 @@ onMounted(loadSummary)
     <div class="dashboard__metrics">
       <div class="dashboard__metric-card dashboard__metric-card--primary">
         <div class="dashboard__metric-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke-width="2"/>
-            <circle cx="12" cy="7" r="4" stroke-width="2"/>
-          </svg>
+          <i class="bi bi-people-fill"></i>
         </div>
         <div class="dashboard__metric-content">
           <span class="dashboard__metric-label">Всего пользователей</span>
@@ -178,10 +172,7 @@ onMounted(loadSummary)
 
       <div class="dashboard__metric-card dashboard__metric-card--success">
         <div class="dashboard__metric-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <circle cx="12" cy="12" r="10" stroke-width="2"/>
-            <path d="M12 6v6l4 2" stroke-width="2"/>
-          </svg>
+          <i class="bi bi-clock-fill"></i>
         </div>
         <div class="dashboard__metric-content">
           <span class="dashboard__metric-label">Активные</span>
@@ -192,9 +183,7 @@ onMounted(loadSummary)
 
       <div class="dashboard__metric-card dashboard__metric-card--warning">
         <div class="dashboard__metric-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke-width="2"/>
-          </svg>
+          <i class="bi bi-shield-fill-check"></i>
         </div>
         <div class="dashboard__metric-content">
           <span class="dashboard__metric-label">Администраторы</span>
@@ -205,12 +194,7 @@ onMounted(loadSummary)
 
       <div class="dashboard__metric-card dashboard__metric-card--info">
         <div class="dashboard__metric-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <rect x="2" y="2" width="20" height="20" rx="2.18" stroke-width="2"/>
-            <line x1="8" y1="2" x2="8" y2="22" stroke-width="2"/>
-            <line x1="16" y1="2" x2="16" y2="22" stroke-width="2"/>
-            <line x1="2" y1="8" x2="22" y2="8" stroke-width="2"/>
-          </svg>
+          <i class="bi bi-person-plus-fill"></i>
         </div>
         <div class="dashboard__metric-content">
           <span class="dashboard__metric-label">Новых сегодня</span>
@@ -231,14 +215,12 @@ onMounted(loadSummary)
           </div>
           <button class="dashboard__card-action" @click="goToUsers">
             Все пользователи
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M5 12h14M12 5l7 7-7 7" stroke-width="2"/>
-            </svg>
+            <i class="bi bi-chevron-right"></i>
           </button>
         </div>
 
-        <div class="dashboard__table-wrapper">
-          <table class="dashboard__table">
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover">
             <thead>
             <tr>
               <th>Пользователь</th>
@@ -249,16 +231,16 @@ onMounted(loadSummary)
             </tr>
             </thead>
             <tbody>
-            <tr v-if="isLoading" class="dashboard__table-loading">
-              <td colspan="5">
+            <tr v-if="isLoading" class="table__row">
+              <td colspan="5" class="table__loading-cell">
                 <div class="dashboard__loader"></div>
                 <span>Загрузка данных...</span>
               </td>
             </tr>
-            <tr v-else-if="!recentUsers.length" class="dashboard__table-empty">
-              <td colspan="5">Нет данных о пользователях</td>
+            <tr v-else-if="!recentUsers.length" class="table__row">
+              <td colspan="5" class="table__empty-cell">Нет данных о пользователях</td>
             </tr>
-            <tr v-for="user in recentUsers" :key="user.id" class="dashboard__table-row">
+            <tr v-for="user in recentUsers" :key="user.id" class="table__row">
               <td>
                 <div class="dashboard__user-info">
                   <div class="dashboard__user-avatar">
@@ -295,15 +277,15 @@ onMounted(loadSummary)
           <h2 class="dashboard__card-title">Быстрые действия</h2>
           <div class="dashboard__quick-actions">
             <button class="dashboard__quick-action" @click="goToUsers">
-              <span class="dashboard__quick-action-icon">👥</span>
+              <i class="bi bi-people dashboard__quick-action-icon"></i>
               <span>Управление пользователями</span>
             </button>
             <button class="dashboard__quick-action" @click="goToAddUser">
-              <span class="dashboard__quick-action-icon">➕</span>
+              <i class="bi bi-person-plus dashboard__quick-action-icon"></i>
               <span>Добавить пользователя</span>
             </button>
             <button class="dashboard__quick-action" @click="router.push({ name: 'admin-contact-requests' })">
-              <span class="dashboard__quick-action-icon">📬</span>
+              <i class="bi bi-envelope dashboard__quick-action-icon"></i>
               <span>Заявки с сайта</span>
             </button>
           </div>
@@ -382,9 +364,9 @@ onMounted(loadSummary)
 <style scoped>
 /* === Основные переменные === */
 .dashboard {
-  --primary: #667eea;
-  --primary-dark: #5a67d8;
-  --secondary: #764ba2;
+  --primary: var(--color-primary);
+  --primary-dark: var(--color-primary-hover);
+  --secondary: var(--color-primary-hover);
   --success: #48bb78;
   --warning: #ed8936;
   --danger: #f56565;
@@ -395,7 +377,7 @@ onMounted(loadSummary)
   --white: #ffffff;
 
   padding: 2rem;
-  background: #f0f2f5;
+  background: var(--color-bg);
   min-height: 100vh;
 }
 
@@ -561,6 +543,26 @@ onMounted(loadSummary)
   border: 1px solid #e2e8f0;
 }
 
+.dashboard__card--table {
+  min-height: 420px;
+  border-radius: 3%;
+  border: 2px solid var(--color-border);
+  overflow: hidden;
+}
+
+.dashboard__card--table .table-responsive {
+  min-height: 320px;
+  border: 1px solid var(--color-border);
+  border-radius: 3%;
+  margin-top: 0.5rem;
+}
+
+.dashboard__card--table .table,
+.dashboard__card--table .table td,
+.dashboard__card--table .table th {
+  border-color: var(--color-border) !important;
+}
+
 .dashboard__card-header {
   display: flex;
   justify-content: space-between;
@@ -605,40 +607,22 @@ onMounted(loadSummary)
   height: 16px;
 }
 
-/* === Таблица === */
-.dashboard__table-wrapper {
-  overflow-x: auto;
+.dashboard__loader,
+.table__loading-cell .dashboard__loader {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 0.5rem;
+  display: block;
 }
 
-.dashboard__table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.dashboard__table th {
-  text-align: left;
-  padding: 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--gray);
-  border-bottom: 2px solid #e2e8f0;
-}
-
-.dashboard__table td {
-  padding: 1rem 0.75rem;
-  border-bottom: 1px solid #e2e8f0;
-  color: var(--dark);
-}
-
-.dashboard__table-row:hover {
-  background: var(--light);
-}
-
-.dashboard__table-loading,
-.dashboard__table-empty {
+.table__loading-cell,
+.table__empty-cell {
   text-align: center;
-  padding: 3rem;
-  color: var(--gray);
+  padding: 2rem;
 }
 
 /* === Бейджи === */
@@ -917,15 +901,15 @@ onMounted(loadSummary)
     grid-template-columns: 1fr;
   }
 
-  .dashboard__table th:nth-child(2),
-  .dashboard__table td:nth-child(2) {
+  .dashboard__card--table .table th:nth-child(2),
+  .dashboard__card--table .table td:nth-child(2) {
     display: none;
   }
 }
 
 @media (max-width: 480px) {
-  .dashboard__table th:nth-child(3),
-  .dashboard__table td:nth-child(3) {
+  .dashboard__card--table .table th:nth-child(3),
+  .dashboard__card--table .table td:nth-child(3) {
     display: none;
   }
 }

@@ -5,10 +5,25 @@
   background: var(--color-bg);
 }
 
+/* Админка — как Client/Company: отступы от краёв экрана, шапка и сайдбар не касаются краёв */
+.app-admin-wrapper {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--color-bg);
+  box-shadow: 0 0 0 1px var(--color-border-light);
+}
+
 .container {
   max-width: var(--content-max-width);
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 40px;
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 0 20px;
+  }
 }
 
 .page {

@@ -4,7 +4,7 @@
 }
 
 .home-section--muted {
-  background-color: var(--home-light);
+  background-color: var(--color-bg-muted);
 }
 
 .home-section__header {
@@ -16,8 +16,8 @@
 .home-section__badge {
   display: inline-block;
   padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
-  color: var(--home-primary);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
   border-radius: 2rem;
   font-size: 0.875rem;
   font-weight: 600;
@@ -39,7 +39,7 @@
 }
 
 .home-container {
-  max-width: 1280px;
+  max-width: var(--content-max-width, 1570px);
   margin: 0 auto;
   padding: 0 2rem;
   width: 100%;

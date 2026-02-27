@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { getAuth } from '../../utils/auth'
 import { useI18n } from '../../i18n/useI18n'
 import { useStatusLabel } from '../../composables/useStatusLabel'
 import { useFileDownload } from '../../composables/useFileDownload'
@@ -13,12 +14,14 @@ import {
   downloadReport,
   downloadDocument,
   deleteReport,
+  deleteEvaluationRequest,
   getStatuses,
 } from '../../api/evaluationApi'
 import { getRegions, getDistrictsByRegion } from '../../api/regionsApi'
 import { getAppraisalPurposes } from '../../api/appraisalPurposesApi'
 import { useAppraisalPurpose } from '../../composables/useAppraisalPurpose'
 import LocationMapPicker from '../../components/shared/LocationMapPicker.vue'
+import { useReportQr } from '../../composables/useReportQr'
 
 const { t } = useI18n()
 const { purposeName } = useAppraisalPurpose()
@@ -26,12 +29,14 @@ const route = useRoute()
 const { statusLabel } = useStatusLabel()
 const { triggerDownload } = useFileDownload()
 const id = computed(() => route.params.id)
+const { qrUrl, qrLoading: qrLoadingState } = useReportQr(id)
 const detail = ref(null)
 const statuses = ref([])
 const loading = ref(true)
 const saving = ref(false)
 const reportLoading = ref(false)
 const deletingReport = ref(false)
+const deletingRequest = ref(false)
 const docLoading = ref(false)
 const saveError = ref('')
 const fileInputReport = ref(null)
@@ -114,6 +119,22 @@ const clientDocuments = computed(() =>
 const companyDocuments = computed(() =>
     (detail.value?.documents ?? []).filter((d) => d.fromClient !== true)
 )
+
+/** Может редактировать: админ — всегда; сотрудник компании — если админ дал право */
+const canEdit = computed(() => {
+  const auth = getAuth()
+  if (auth.role === 'ADMIN') return true
+  if (auth.role === 'COMPANY_EMPLOYEE') return auth.canEditEvaluationRequests !== false
+  return false
+})
+
+/** Может удалять: админ — всегда; сотрудник компании — если админ дал право */
+const canDelete = computed(() => {
+  const auth = getAuth()
+  if (auth.role === 'ADMIN') return true
+  if (auth.role === 'COMPANY_EMPLOYEE') return auth.canDeleteEvaluationRequests !== false
+  return false
+})
 
 onMounted(async () => {
   try {
@@ -228,6 +249,20 @@ const doDownloadDocument = async (docId) => {
     saveError.value = t('client.download') + ': ошибка'
   }
 }
+
+const onDeleteRequest = async () => {
+  if (!confirm(t('company.deleteRequestConfirm') || 'Удалить заявку? Это действие нельзя отменить.')) return
+  deletingRequest.value = true
+  saveError.value = ''
+  try {
+    await deleteEvaluationRequest(id.value)
+    window.location.href = '/company/requests'
+  } catch (err) {
+    saveError.value = err.response?.data?.message || t('company.deleteRequestError') || 'Не удалось удалить заявку'
+  } finally {
+    deletingRequest.value = false
+  }
+}
 </script>
 
 <template>
@@ -235,9 +270,7 @@ const doDownloadDocument = async (docId) => {
     <!-- Навигация -->
     <div class="request-detail__nav">
       <router-link :to="{ name: 'company-requests' }" class="request-detail__back-link">
-        <svg class="request-detail__back-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <i class="bi bi-arrow-left request-detail__back-icon"></i>
         <span>{{ t('company.detailBack') }}</span>
       </router-link>
     </div>
@@ -257,11 +290,7 @@ const doDownloadDocument = async (docId) => {
     </div>
 
     <div v-else-if="!detail" class="request-detail__state request-detail__state--empty">
-      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="8" x2="12" y2="12"/>
-        <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
-      </svg>
+      <i class="bi bi-exclamation-circle" style="font-size: 3rem;"></i>
       <p>{{ t('client.notFound') }}</p>
     </div>
 
@@ -272,18 +301,21 @@ const doDownloadDocument = async (docId) => {
         <div class="request-detail__main">
           <section class="request-detail__section">
             <h2 class="request-detail__section-title">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
+              <i class="bi bi-person"></i>
               {{ t('company.detailData') }}
             </h2>
 
-            <div class="request-detail__form">
+            <div v-if="!canEdit" class="request-detail__no-access">
+              <i class="bi bi-shield-lock request-detail__no-access-icon"></i>
+              <p class="request-detail__no-access-text">{{ t('company.noEditAccess') || 'У вас нет прав на редактирование заявок.' }}</p>
+              <p class="request-detail__no-access-hint">{{ t('company.noEditAccessHint') || 'Обратитесь к администратору для получения доступа.' }}</p>
+            </div>
+
+            <div v-else class="request-detail__form">
               <!-- Статус -->
               <div class="request-detail__field">
                 <label class="request-detail__label">{{ t('company.detailStatus') }}</label>
-                <select v-model="editForm.status" class="request-detail__select">
+                <select v-model="editForm.status" class="form-select">
                   <option v-for="s in statuses" :key="s" :value="s">{{ statusLabel(s) }}</option>
                 </select>
               </div>
@@ -294,7 +326,7 @@ const doDownloadDocument = async (docId) => {
                 <input
                     v-model="editForm.appraisedObjectName"
                     type="text"
-                    class="request-detail__input"
+                    class="form-control"
                     :placeholder="t('company.detailAppraisedObjectNamePlaceholder')"
                 />
               </div>
@@ -305,7 +337,7 @@ const doDownloadDocument = async (docId) => {
                 <input
                     v-model="editForm.borrowerName"
                     type="text"
-                    class="request-detail__input"
+                    class="form-control"
                     :placeholder="t('company.detailBorrowerNamePlaceholder')"
                 />
               </div>
@@ -315,7 +347,7 @@ const doDownloadDocument = async (docId) => {
                 <label class="request-detail__label">{{ t('company.detailDescription') }}</label>
                 <textarea
                     v-model="editForm.objectDescription"
-                    class="request-detail__textarea"
+                    class="form-control"
                     rows="3"
                     :placeholder="t('company.detailDescriptionPlaceholder')"
                 />
@@ -330,7 +362,7 @@ const doDownloadDocument = async (docId) => {
                       type="number"
                       min="0"
                       step="1"
-                      class="request-detail__input request-detail__input--with-suffix"
+                      class="form-control request-detail__input--with-suffix"
                       :placeholder="t('company.detailCostLabel')"
                   />
                   <span class="request-detail__input-suffix">сум</span>
@@ -341,14 +373,14 @@ const doDownloadDocument = async (docId) => {
               <div class="request-detail__row">
                 <div class="request-detail__field request-detail__field--half">
                   <label class="request-detail__label">{{ t('company.region') }}</label>
-                  <select v-model="editForm.regionId" class="request-detail__select">
+                  <select v-model="editForm.regionId" class="form-select">
                     <option value="">{{ t('client.allStatuses') }}</option>
                     <option v-for="r in regions" :key="r.id" :value="r.id">{{ r.nameUz || r.nameRu }}</option>
                   </select>
                 </div>
                 <div class="request-detail__field request-detail__field--half">
                   <label class="request-detail__label">{{ t('company.district') }}</label>
-                  <select v-model="editForm.districtId" class="request-detail__select" :disabled="!editForm.regionId">
+                  <select v-model="editForm.districtId" class="form-select" :disabled="!editForm.regionId">
                     <option value="">{{ t('client.allStatuses') }}</option>
                     <option v-for="d in districts" :key="d.id" :value="d.id">{{ d.nameUz || d.nameRu }}</option>
                   </select>
@@ -369,7 +401,7 @@ const doDownloadDocument = async (docId) => {
                   <input
                       v-model="editForm.location.address"
                       type="text"
-                      class="request-detail__input request-detail__input--map-address"
+                      class="form-control request-detail__input--map-address"
                       :placeholder="t('company.locationAddressPlaceholder')"
                   />
                 </div>
@@ -381,16 +413,12 @@ const doDownloadDocument = async (docId) => {
                   <label class="request-detail__label">{{ t('company.reportTitle') }}</label>
                   <button
                       type="button"
-                      class="request-detail__btn request-detail__btn--outline request-detail__btn--small"
+                      class="btn btn-outline-secondary btn-sm"
                       :disabled="reportLoading"
                       @click="fileInputReport?.click()"
                   >
-                    <svg v-if="!reportLoading" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                      <polyline points="17 8 12 3 7 8"/>
-                      <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                    <span v-if="reportLoading" class="request-detail__spinner request-detail__spinner--small"></span>
+                    <span v-if="reportLoading" class="spinner-border spinner-border-sm me-1" role="status"></span>
+                    <i v-else class="bi bi-upload"></i>
                     <span>{{ reportLoading ? t('company.loading') : t('company.uploadReport') }}</span>
                   </button>
                 </div>
@@ -403,20 +431,14 @@ const doDownloadDocument = async (docId) => {
                 />
                 <div v-if="detail.hasReportFile" class="request-detail__report-info">
                   <div class="request-detail__report-main">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                      <polyline points="14 2 14 8 20 8"/>
-                      <line x1="16" y1="13" x2="8" y2="13"/>
-                      <line x1="16" y1="17" x2="8" y2="17"/>
-                      <polyline points="10 9 9 9 8 9"/>
-                    </svg>
+                    <i class="bi bi-file-earmark-text"></i>
                     <div class="request-detail__report-text">
                       <span class="request-detail__report-name">
                         {{ detail.reportFileName || t('company.reportUploadedHint') }}
                       </span>
                       <button
                           type="button"
-                          class="request-detail__btn request-detail__btn--text"
+                          class="btn btn-link btn-sm p-0"
                           @click="doDownloadReport"
                       >
                         {{ t('company.downloadReport') }}
@@ -425,37 +447,46 @@ const doDownloadDocument = async (docId) => {
                   </div>
                   <button
                       type="button"
-                      class="request-detail__btn request-detail__btn--icon request-detail__report-delete"
+                      class="btn btn-danger btn-sm"
                       :disabled="deletingReport"
                       @click="onDeleteReport"
                       title="Удалить отчёт"
                   >
-                    <span v-if="deletingReport" class="request-detail__spinner request-detail__spinner--small"></span>
-                    <span v-else>×</span>
+                    <span v-if="deletingReport" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <i v-else class="bi bi-trash"></i>
                   </button>
                 </div>
               </div>
 
               <!-- Сообщение об ошибке -->
               <div v-if="saveError" class="request-detail__error">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"/>
-                  <line x1="12" y1="8" x2="12" y2="12"/>
-                  <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
-                </svg>
+                <i class="bi bi-exclamation-circle-fill"></i>
                 {{ saveError }}
               </div>
 
-              <!-- Кнопка сохранения -->
-              <button
-                  type="button"
-                  class="request-detail__btn request-detail__btn--primary request-detail__btn--full"
-                  :disabled="saving"
-                  @click="save"
-              >
-                <span v-if="saving" class="request-detail__spinner"></span>
-                <span>{{ saving ? t('company.saving') : t('company.save') }}</span>
-              </button>
+              <!-- Кнопки сохранения и удаления -->
+              <div class="request-detail__form-actions">
+                <button
+                    type="button"
+                    class="btn btn-primary request-detail__btn-save"
+                    :disabled="saving"
+                    @click="save"
+                >
+                  <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                  <span>{{ saving ? t('company.saving') : t('company.save') }}</span>
+                </button>
+                <button
+                    v-if="canDelete"
+                    type="button"
+                    class="btn btn-danger"
+                    :disabled="deletingRequest"
+                    @click="onDeleteRequest"
+                >
+                  <span v-if="deletingRequest" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                  <i v-else class="bi bi-trash"></i>
+                  <span>{{ deletingRequest ? t('company.loading') : (t('company.deleteRequest') || 'Удалить заявку') }}</span>
+                </button>
+              </div>
             </div>
           </section>
         </div>
@@ -465,10 +496,7 @@ const doDownloadDocument = async (docId) => {
           <!-- Информация о клиенте -->
           <section class="request-detail__section request-detail__section--compact">
             <h2 class="request-detail__section-title">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
+              <i class="bi bi-person"></i>
               {{ t('company.detailClient') }}
             </h2>
 
@@ -506,62 +534,62 @@ const doDownloadDocument = async (docId) => {
             </div>
           </section>
 
+          <!-- QR-код для просмотра PDF-отчёта -->
+          <section class="request-detail__section request-detail__section--compact request-detail__section--qr">
+            <h2 class="request-detail__section-title">
+              <i class="bi bi-qr-code"></i>
+              {{ t('company.qrReportTitle') || 'QR-код для просмотра отчёта' }}
+            </h2>
+            <div v-if="qrLoadingState" class="request-detail__qr-loading">
+              <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+              <span>{{ t('company.loading') }}</span>
+            </div>
+            <div v-else-if="qrUrl" class="request-detail__qr-block">
+              <img :src="qrUrl" alt="QR-код" class="request-detail__qr-image" />
+              <p class="request-detail__qr-hint">{{ t('company.qrReportHint') || 'Сканируйте камерой для просмотра PDF на телефоне или планшете' }}</p>
+            </div>
+          </section>
+
           <!-- Документы клиента -->
           <section v-if="clientDocuments.length" class="request-detail__section request-detail__section--compact">
             <h2 class="request-detail__section-title">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-              </svg>
+              <i class="bi bi-folder2-open"></i>
               {{ t('company.attachedFiles') }}
             </h2>
 
             <ul class="request-detail__file-list">
               <li v-for="doc in clientDocuments" :key="doc.id" class="request-detail__file-item">
                 <div class="request-detail__file-info">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
-                    <polyline points="13 2 13 9 20 9"/>
-                  </svg>
+                  <i class="bi bi-file-earmark"></i>
                   <span class="request-detail__file-name">{{ doc.fileName }}</span>
                 </div>
                 <button
                     type="button"
-                    class="request-detail__btn request-detail__btn--icon"
+                    class="btn btn-outline-secondary btn-sm"
                     @click="doDownloadDocument(doc.id)"
                     title="Скачать"
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                  </svg>
+                  <i class="bi bi-download"></i>
                 </button>
               </li>
             </ul>
           </section>
 
-          <!-- Завершение заявки -->
-          <section v-if="detail.status === 'REPORT_READY' || detail.status === 'COMPLETED'" class="request-detail__section request-detail__section--compact">
+          <!-- Завершение заявки (только при наличии прав) -->
+          <section v-if="canEdit && (detail.status === 'REPORT_READY' || detail.status === 'COMPLETED')" class="request-detail__section request-detail__section--compact">
             <div v-if="detail.status !== 'COMPLETED'" class="request-detail__completion">
               <p class="request-detail__completion-text">{{ t('company.completionHint') }}</p>
               <button
                   type="button"
-                  class="request-detail__btn request-detail__btn--success request-detail__btn--full"
+                  class="btn btn-success w-100 d-inline-flex align-items-center justify-content-center gap-2"
                   @click="confirmComplete"
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                  <polyline points="22 4 12 14.01 9 11.01"/>
-                </svg>
+                <i class="bi bi-check-circle"></i>
                 {{ t('company.confirmCompletion') }}
               </button>
             </div>
             <div v-else class="request-detail__completed">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                <polyline points="22 4 12 14.01 9 11.01"/>
-              </svg>
+              <i class="bi bi-check-circle-fill"></i>
               <span>{{ t('company.completed') }}</span>
             </div>
           </section>
@@ -573,7 +601,7 @@ const doDownloadDocument = async (docId) => {
 
 <style scoped>
 .request-detail {
-  max-width: 1400px;
+  max-width: var(--content-max-width, 1570px);
   margin: 0 auto;
   padding: 2rem 1.5rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
@@ -678,7 +706,7 @@ const doDownloadDocument = async (docId) => {
   width: 24px;
   height: 24px;
   border: 2px solid #e2e8f0;
-  border-top-color: #3b82f6;
+  border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -716,6 +744,35 @@ const doDownloadDocument = async (docId) => {
   margin-top: 1.5rem;
 }
 
+/* Нет прав на редактирование */
+.request-detail__no-access {
+  padding: 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  border-left: 4px solid #64748b;
+}
+
+.request-detail__no-access-icon {
+  font-size: 2.5rem;
+  color: #94a3b8;
+  margin-bottom: 0.75rem;
+}
+
+.request-detail__no-access-text {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #334155;
+}
+
+.request-detail__no-access-hint {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
 .request-detail__section-title {
   display: flex;
   align-items: center;
@@ -729,7 +786,7 @@ const doDownloadDocument = async (docId) => {
 }
 
 .request-detail__section-title svg {
-  color: #3b82f6;
+  color: var(--color-primary);
 }
 
 /* Форма */
@@ -787,7 +844,7 @@ const doDownloadDocument = async (docId) => {
 .request-detail__select:focus,
 .request-detail__textarea:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
 }
 
@@ -1055,6 +1112,51 @@ const doDownloadDocument = async (docId) => {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.request-detail__qr-loading {
+  display: flex;
+  align-items: center;
+  padding: 1rem 0;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.request-detail__qr-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.request-detail__qr-image {
+  width: 256px;
+  height: 256px;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.request-detail__qr-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #64748b;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.request-detail__form-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.request-detail__btn-save {
+  flex: 1;
+  min-width: 140px;
 }
 
 .request-detail__completion-text {

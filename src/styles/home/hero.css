@@ -76,12 +76,12 @@
 }
 
 .hero .home-btn--primary {
-  background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
-  box-shadow: 0 4px 14px rgba(91, 33, 182, 0.35);
+  background: var(--home-gradient);
+  box-shadow: 0 4px 14px var(--color-primary-light);
 }
 
 .hero .home-btn--primary:hover {
-  box-shadow: 0 8px 24px rgba(91, 33, 182, 0.5);
+  box-shadow: 0 6px 20px var(--color-primary-light);
 }
 
 .hero__trust {

@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from '../i18n/useI18n'
+import HomeFooter from '../components/home/HomeFooter.vue'
 
 const { t } = useI18n()
 
@@ -117,6 +118,8 @@ const values = computed(() => [
         </div>
       </div>
     </section>
+
+    <HomeFooter />
   </main>
 </template>
 
@@ -127,7 +130,7 @@ const values = computed(() => [
 
 /* Общие стили */
 .about__container {
-  max-width: 1280px;
+  max-width: var(--content-max-width, 1570px);
   margin: 0 auto;
   padding: 0 40px;
 }
@@ -135,7 +138,7 @@ const values = computed(() => [
 .about__section-title {
   font-size: 36px;
   font-weight: 700;
-  color: #1a202c;
+  color: var(--color-text);
   text-align: center;
   margin: 0 0 20px;
   line-height: 1.2;
@@ -143,8 +146,8 @@ const values = computed(() => [
 
 /* Hero секция */
 .about__hero {
-  padding: 100px 0 60px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 6rem 0 5rem;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   color: white;
   text-align: center;
   position: relative;
@@ -225,8 +228,8 @@ const values = computed(() => [
 
 /* Миссия */
 .about__mission {
-  padding: 80px 0;
-  background: white;
+  padding: 5rem 0;
+  background: var(--color-bg-card);
 }
 
 .about__mission-content {
@@ -238,13 +241,13 @@ const values = computed(() => [
 .about__mission-text {
   font-size: 18px;
   line-height: 1.8;
-  color: #4a5568;
+  color: var(--color-text-secondary);
 }
 
 /* Основные преимущества */
 .about__features {
-  padding: 80px 0;
-  background: #f8fafc;
+  padding: 5rem 0;
+  background: var(--color-bg-muted);
 }
 
 .about__features-grid {
@@ -266,27 +269,27 @@ const values = computed(() => [
 
 .about__feature-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 35px -8px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 20px 35px -8px var(--color-primary-light);
 }
 
 .about__feature-title {
   font-size: 24px;
   font-weight: 600;
-  color: #1a202c;
+  color: var(--color-text);
   margin: 0 0 16px;
 }
 
 .about__feature-text {
   font-size: 16px;
   line-height: 1.6;
-  color: #64748b;
+  color: var(--color-text-muted);
   margin: 0;
 }
 
 /* Ценности */
 .about__values {
-  padding: 80px 0;
-  background: white;
+  padding: 5rem 0;
+  background: var(--color-bg-card);
 }
 
 .about__values-grid {
@@ -299,7 +302,7 @@ const values = computed(() => [
 .about__value-card {
   text-align: center;
   padding: 30px 20px;
-  background: #f8fafc;
+  background: var(--color-bg-muted);
   border-radius: 16px;
   transition: all 0.3s ease;
 }
@@ -318,21 +321,21 @@ const values = computed(() => [
 .about__value-title {
   font-size: 18px;
   font-weight: 600;
-  color: #1a202c;
+  color: var(--color-text);
   margin: 0 0 12px;
 }
 
 .about__value-text {
   font-size: 14px;
   line-height: 1.6;
-  color: #64748b;
+  color: var(--color-text-muted);
   margin: 0;
 }
 
 /* CTA секция */
 .about__cta {
-  padding: 80px 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 5rem 0;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   color: white;
   text-align: center;
   position: relative;
@@ -393,7 +396,7 @@ const values = computed(() => [
 
 .about__btn--primary {
   background: white;
-  color: #667eea;
+  color: var(--color-primary);
 }
 
 .about__btn--primary:hover {
@@ -426,7 +429,7 @@ const values = computed(() => [
 
 @media (max-width: 768px) {
   .about__hero {
-    padding: 60px 0 40px;
+    padding: 4rem 0 3rem;
   }
 
   .about__title {

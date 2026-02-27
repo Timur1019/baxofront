@@ -39,7 +39,7 @@ const partners = [
 }
 
 .partners__container {
-  max-width: 1280px;
+  max-width: var(--content-max-width, 1570px);
   margin: 0 auto;
   padding: 0 40px;
 }

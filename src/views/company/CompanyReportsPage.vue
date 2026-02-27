@@ -138,16 +138,13 @@ const statusClass = (status) => {
       </div>
 
       <button
-          class="btn btn--primary btn--icon-left"
+          type="button"
+          class="btn btn-primary d-inline-flex align-items-center gap-2"
           :disabled="exporting || loading"
           @click="exportExcel"
       >
-        <svg v-if="!exporting" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="7 10 12 15 17 10"/>
-          <line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-        <span v-if="exporting" class="spinner spinner--small"></span>
+        <span v-if="exporting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <i v-else class="bi bi-download"></i>
         <span>{{ exporting ? t('company.loading') : t('company.reportsExportExcel') }}</span>
       </button>
     </div>
@@ -156,15 +153,10 @@ const statusClass = (status) => {
     <div class="filters">
       <div class="filters__group">
         <label class="filters__label">{{ t('company.filterStatus') }}</label>
-        <div class="select-wrapper">
-          <select v-model="statusFilter" class="select">
-            <option value="">{{ t('company.allStatuses') }}</option>
-            <option v-for="s in statuses" :key="s" :value="s">{{ statusLabel(s) }}</option>
-          </select>
-          <svg class="select__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        </div>
+        <select v-model="statusFilter" class="form-select">
+          <option value="">{{ t('company.allStatuses') }}</option>
+          <option v-for="s in statuses" :key="s" :value="s">{{ statusLabel(s) }}</option>
+        </select>
       </div>
     </div>
 
@@ -175,20 +167,13 @@ const statusClass = (status) => {
     </div>
 
     <div v-else-if="error" class="alert alert--danger">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="8" x2="12" y2="12"/>
-        <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
-      </svg>
+      <i class="bi bi-exclamation-circle-fill"></i>
       <span>{{ error }}</span>
       <button class="alert__close" @click="error = ''">×</button>
     </div>
 
     <div v-else-if="list.length === 0" class="state state--empty">
-      <svg class="state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-      </svg>
+      <i class="bi bi-inbox state__icon"></i>
       <p>{{ t('company.reportsEmpty') }}</p>
     </div>
 
@@ -196,7 +181,7 @@ const statusClass = (status) => {
     <div v-else class="content">
       <div class="card">
         <div class="table-responsive">
-          <table class="table">
+          <table class="table table-bordered table-hover">
             <thead>
             <tr>
               <th>{{ t('company.date') }}</th>
@@ -228,11 +213,12 @@ const statusClass = (status) => {
               </td>
               <td class="table__cell--right" @click.stop>
                 <button
-                    class="btn btn--small btn--outline"
+                    type="button"
+                    class="btn btn-outline-secondary btn-sm"
                     :disabled="downloadingId === item.id"
                     @click="downloadWord(item)"
                 >
-                  <span v-if="downloadingId === item.id" class="spinner spinner--small"></span>
+                  <span v-if="downloadingId === item.id" class="spinner-border spinner-border-sm me-1" role="status"></span>
                   <span>{{ downloadingId === item.id ? t('company.loading') : t('company.reportsDownloadWord') }}</span>
                 </button>
               </td>
@@ -242,31 +228,21 @@ const statusClass = (status) => {
         </div>
 
         <!-- Пагинация -->
-        <div v-if="totalPages > 1" class="pagination">
-          <button
-              class="pagination__btn"
-              :disabled="loading || currentPage === 0"
-              @click="prevPage"
-          >
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <polyline points="15 18 9 12 15 6"/>
-            </svg>
-          </button>
-
-          <span class="pagination__info">
-            {{ currentPage + 1 }} / {{ totalPages }}
-          </span>
-
-          <button
-              class="pagination__btn"
-              :disabled="loading || currentPage >= totalPages - 1"
-              @click="nextPage"
-          >
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <polyline points="9 18 15 12 9 6"/>
-            </svg>
-          </button>
-        </div>
+        <nav v-if="totalPages > 1" class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3" aria-label="Пагинация">
+          <span class="text-muted small">{{ currentPage + 1 }} / {{ totalPages }}</span>
+          <ul class="pagination mb-0">
+            <li class="page-item" :class="{ disabled: loading || currentPage === 0 }">
+              <button type="button" class="page-link" :disabled="loading || currentPage === 0" @click="prevPage" aria-label="Назад">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+            </li>
+            <li class="page-item" :class="{ disabled: loading || currentPage >= totalPages - 1 }">
+              <button type="button" class="page-link" :disabled="loading || currentPage >= totalPages - 1" @click="nextPage" aria-label="Вперёд">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
@@ -403,60 +379,6 @@ const statusClass = (status) => {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
-}
-
-/* Таблица */
-.table-responsive {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
-}
-
-.table th {
-  text-align: left;
-  padding: var(--spacing-3) var(--spacing-4);
-  font-weight: 600;
-  color: var(--color-text-light);
-  border-bottom: 2px solid var(--color-border);
-  white-space: nowrap;
-}
-
-.table td {
-  padding: var(--spacing-3) var(--spacing-4);
-  border-bottom: 1px solid var(--color-border-light);
-  color: var(--color-text);
-}
-
-.table__row {
-  transition: background-color var(--transition-fast) var(--ease);
-}
-
-.table__row--clickable {
-  cursor: pointer;
-}
-
-.table__row--clickable:hover {
-  background: var(--color-bg-hover);
-}
-
-.table__cell--truncate {
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.table__cell--nowrap {
-  white-space: nowrap;
-}
-
-.table__cell--right {
-  text-align: right;
 }
 
 /* Бейджи статусов */
@@ -618,44 +540,6 @@ const statusClass = (status) => {
 }
 
 /* Пагинация */
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-3);
-  padding: var(--spacing-4);
-  border-top: 1px solid var(--color-border);
-}
-
-.pagination__btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-card);
-  color: var(--color-text);
-  cursor: pointer;
-  transition: all var(--transition-fast) var(--ease);
-}
-
-.pagination__btn:hover:not(:disabled) {
-  background: var(--color-bg-hover);
-  border-color: var(--color-border-dark);
-}
-
-.pagination__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.pagination__info {
-  font-size: 0.875rem;
-  color: var(--color-text-light);
-}
-
 /* Текст */
 .text-muted {
   color: var(--color-text-lighter);
@@ -678,25 +562,13 @@ const statusClass = (status) => {
     min-width: auto;
   }
 
-  .table td {
-    padding: var(--spacing-2);
-  }
-
-  .table__cell--truncate {
-    max-width: 120px;
-  }
 }
 
 @media (max-width: 640px) {
   .table-responsive {
     margin: 0 calc(var(--spacing-4) * -1);
     padding: 0 var(--spacing-4);
-    width: calc(100% + var(--spacing-8));
-  }
-
-  .table th,
-  .table td {
-    white-space: nowrap;
+    width: calc(100% + 2 * var(--spacing-4));
   }
 }
 </style>

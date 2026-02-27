@@ -102,25 +102,18 @@ const statusClass = (status) => {
       </div>
 
       <button
-          class="btn btn--outline btn--icon-left"
+          class="btn btn-outline-secondary d-inline-flex align-items-center gap-2"
           :disabled="isLoading"
           @click="loadData"
       >
-        <svg class="icon" :class="{ 'icon--spin': isLoading }" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M23 4v6h-6M1 20v-6h6" stroke-width="2"/>
-          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" stroke-width="2"/>
-        </svg>
+        <i class="bi bi-arrow-repeat" :class="{ 'animation-spin': isLoading }"></i>
         <span>{{ isLoading ? t('company.loading') : t('company.dashboardRefresh') }}</span>
       </button>
     </div>
 
     <!-- Ошибка -->
     <div v-if="error" class="alert alert--danger">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="8" x2="12" y2="12"/>
-        <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
-      </svg>
+      <i class="bi bi-exclamation-circle-fill"></i>
       <span>{{ error }}</span>
       <button class="alert__close" @click="error = null">×</button>
     </div>
@@ -129,10 +122,7 @@ const statusClass = (status) => {
     <div class="dashboard__metrics">
       <div class="metric-card">
         <div class="metric-card__icon metric-card__icon--primary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-          </svg>
+          <i class="bi bi-journal-text"></i>
         </div>
         <div class="metric-card__content">
           <span class="metric-card__label">{{ t('company.dashboardTotal') }}</span>
@@ -142,10 +132,7 @@ const statusClass = (status) => {
 
       <div class="metric-card">
         <div class="metric-card__icon metric-card__icon--warning">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <circle cx="12" cy="12" r="10"/>
-            <polyline points="12 6 12 12 16 14"/>
-          </svg>
+          <i class="bi bi-clock-history"></i>
         </div>
         <div class="metric-card__content">
           <span class="metric-card__label">{{ t('company.dashboardPending') }}</span>
@@ -155,10 +142,7 @@ const statusClass = (status) => {
 
       <div class="metric-card">
         <div class="metric-card__icon metric-card__icon--info">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
-            <path d="M12 6v6l4 2"/>
-          </svg>
+          <i class="bi bi-hourglass-split"></i>
         </div>
         <div class="metric-card__content">
           <span class="metric-card__label">{{ t('company.dashboardInProgress') }}</span>
@@ -168,10 +152,7 @@ const statusClass = (status) => {
 
       <div class="metric-card">
         <div class="metric-card__icon metric-card__icon--success">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-            <polyline points="22 4 12 14.01 9 11.01"/>
-          </svg>
+          <i class="bi bi-check-circle-fill"></i>
         </div>
         <div class="metric-card__content">
           <span class="metric-card__label">{{ t('company.dashboardCompleted') }}</span>
@@ -190,17 +171,15 @@ const statusClass = (status) => {
             <p class="card__subtitle">{{ t('company.dashboardRecentDesc') }}</p>
           </div>
 
-          <button class="btn btn--link" @click="goToRequests">
+          <button type="button" class="btn btn-link" @click="goToRequests">
             <span>{{ t('company.dashboardAllRequests') }}</span>
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
+            <i class="bi bi-chevron-right"></i>
           </button>
         </div>
 
         <div class="card__body">
           <div class="table-responsive">
-            <table class="table">
+            <table class="table table-bordered table-hover">
               <thead>
               <tr>
                 <th>{{ t('company.date') }}</th>
@@ -227,10 +206,7 @@ const statusClass = (status) => {
               <tr v-else-if="recentRequests.length === 0" class="table__row--empty">
                 <td colspan="6">
                   <div class="empty-state">
-                    <svg class="empty-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                      <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-                    </svg>
+                    <i class="bi bi-inbox empty-state__icon"></i>
                     <p class="empty-state__text">{{ t('company.empty') }}</p>
                   </div>
                 </td>
@@ -278,11 +254,8 @@ const statusClass = (status) => {
           </div>
 
           <div class="card__body">
-            <button class="btn btn--block btn--outline btn--icon-left" @click="goToRequests">
-              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-              </svg>
+            <button type="button" class="btn btn-outline-secondary w-100 d-inline-flex align-items-center justify-content-center gap-2" @click="goToRequests">
+              <i class="bi bi-arrow-right"></i>
               <span>{{ t('company.dashboardAllRequests') }}</span>
             </button>
           </div>
@@ -471,65 +444,9 @@ const statusClass = (status) => {
   padding: var(--spacing-5);
 }
 
-/* Таблица */
-.table-responsive {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+.card__body .table-responsive {
   margin: calc(var(--spacing-5) * -1);
   padding: var(--spacing-5);
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
-}
-
-.table th {
-  text-align: left;
-  padding: var(--spacing-3) var(--spacing-4);
-  font-weight: 600;
-  color: var(--color-text-light);
-  border-bottom: 2px solid var(--color-border);
-  white-space: nowrap;
-}
-
-.table td {
-  padding: var(--spacing-3) var(--spacing-4);
-  border-bottom: 1px solid var(--color-border-light);
-  color: var(--color-text);
-}
-
-.table__row {
-  transition: background-color var(--transition-fast) var(--ease);
-}
-
-.table__row--clickable {
-  cursor: pointer;
-}
-
-.table__row--clickable:hover {
-  background: var(--color-bg-hover);
-}
-
-.table__row--loading,
-.table__row--empty {
-  text-align: center;
-}
-
-.table__cell--truncate {
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.table__cell--nowrap {
-  white-space: nowrap;
-}
-
-.table__cell--right {
-  text-align: right;
 }
 
 /* Бейджи */
@@ -660,7 +577,8 @@ const statusClass = (status) => {
   flex-shrink: 0;
 }
 
-.icon--spin {
+.icon--spin,
+.animation-spin {
   animation: spin 1s linear infinite;
 }
 

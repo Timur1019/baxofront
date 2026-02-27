@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from '../../i18n/useI18n'
 import { getAllEvaluationRequests, getStatuses } from '../../api/evaluationApi'
+import ReportQrTrigger from '../../components/shared/ReportQrTrigger.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -117,17 +118,12 @@ const prevPage = () => {
         <label class="filters__label">
           {{ t('company.filterStatus') }}
         </label>
-        <div class="select-wrapper">
-          <select v-model="statusFilter" class="select">
-            <option value="">{{ t('company.allStatuses') }}</option>
-            <option v-for="s in statuses" :key="s" :value="s">
-              {{ statusLabel(s) }}
-            </option>
-          </select>
-          <svg class="select__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        </div>
+        <select v-model="statusFilter" class="form-select">
+          <option value="">{{ t('company.allStatuses') }}</option>
+          <option v-for="s in statuses" :key="s" :value="s">
+            {{ statusLabel(s) }}
+          </option>
+        </select>
       </div>
     </div>
 
@@ -138,20 +134,13 @@ const prevPage = () => {
     </div>
 
     <div v-else-if="error" class="alert alert--danger">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="8" x2="12" y2="12"/>
-        <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
-      </svg>
+      <i class="bi bi-exclamation-circle-fill"></i>
       <span>{{ error }}</span>
       <button class="alert__close" @click="error = ''">×</button>
     </div>
 
     <div v-else-if="list.length === 0" class="state state--empty">
-      <svg class="state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-      </svg>
+      <i class="bi bi-inbox state__icon"></i>
       <p>{{ t('company.empty') }}</p>
     </div>
 
@@ -159,7 +148,7 @@ const prevPage = () => {
     <div v-else class="content">
       <div class="card">
         <div class="table-responsive">
-          <table class="table">
+          <table class="table table-bordered table-hover">
             <thead>
             <tr>
               <th>{{ t('company.date') }}</th>
@@ -167,6 +156,7 @@ const prevPage = () => {
               <th>{{ t('company.description') }}</th>
               <th>{{ t('company.status') }}</th>
               <th class="table__cell--right">{{ t('company.cost') }}</th>
+              <th class="table__cell--right">{{ t('company.qrReportTitle') || 'QR' }}</th>
               <th class="table__cell--right"></th>
             </tr>
             </thead>
@@ -196,8 +186,11 @@ const prevPage = () => {
               <td class="table__cell--right table__cell--nowrap" data-label="Стоимость">
                 {{ item.cost != null ? Number(item.cost).toLocaleString('ru-RU') + ' сум' : '—' }}
               </td>
+              <td class="table__cell--right table__cell--qr" data-label="QR">
+                <ReportQrTrigger :request-id="item.id" />
+              </td>
               <td class="table__cell--right" data-label="">
-                <span class="link">{{ t('company.open') }} →</span>
+                <span class="link" @click.stop="goTo(item.id)">{{ t('company.open') }} →</span>
               </td>
             </tr>
             </tbody>
@@ -205,31 +198,21 @@ const prevPage = () => {
         </div>
 
         <!-- Пагинация -->
-        <div v-if="totalPages > 1" class="pagination">
-          <button
-              class="pagination__btn"
-              :disabled="loading || currentPage === 0"
-              @click="prevPage"
-          >
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <polyline points="15 18 9 12 15 6"/>
-            </svg>
-          </button>
-
-          <span class="pagination__info">
-            {{ currentPage + 1 }} / {{ totalPages }}
-          </span>
-
-          <button
-              class="pagination__btn"
-              :disabled="loading || currentPage >= totalPages - 1"
-              @click="nextPage"
-          >
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <polyline points="9 18 15 12 9 6"/>
-            </svg>
-          </button>
-        </div>
+        <nav v-if="totalPages > 1" class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3" aria-label="Пагинация">
+          <span class="text-muted small">{{ currentPage + 1 }} / {{ totalPages }}</span>
+          <ul class="pagination mb-0">
+            <li class="page-item" :class="{ disabled: loading || currentPage === 0 }">
+              <button type="button" class="page-link" :disabled="loading || currentPage === 0" @click="prevPage" aria-label="Назад">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+            </li>
+            <li class="page-item" :class="{ disabled: loading || currentPage >= totalPages - 1 }">
+              <button type="button" class="page-link" :disabled="loading || currentPage >= totalPages - 1" @click="nextPage" aria-label="Вперёд">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
@@ -366,64 +349,6 @@ const prevPage = () => {
   overflow: hidden;
 }
 
-/* Таблица */
-.table-responsive {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
-}
-
-.table th {
-  text-align: left;
-  padding: var(--spacing-3) var(--spacing-4);
-  font-weight: 600;
-  color: var(--color-text-light);
-  border-bottom: 2px solid var(--color-border);
-  white-space: nowrap;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  font-size: 0.75rem;
-}
-
-.table td {
-  padding: var(--spacing-3) var(--spacing-4);
-  border-bottom: 1px solid var(--color-border-light);
-  color: var(--color-text);
-}
-
-.table__row {
-  transition: background-color var(--transition-fast) var(--ease);
-}
-
-.table__row--clickable {
-  cursor: pointer;
-}
-
-.table__row--clickable:hover {
-  background: var(--color-bg-hover);
-}
-
-.table__cell--truncate {
-  max-width: 250px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--color-text-light);
-}
-
-.table__cell--nowrap {
-  white-space: nowrap;
-}
-
-.table__cell--right {
-  text-align: right;
-}
-
 /* Бейджи статусов */
 .badge {
   display: inline-block;
@@ -537,47 +462,6 @@ const prevPage = () => {
   opacity: 1;
 }
 
-/* Пагинация */
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-3);
-  padding: var(--spacing-4);
-  border-top: 1px solid var(--color-border);
-}
-
-.pagination__btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  background: var(--color-bg-card);
-  color: var(--color-text);
-  cursor: pointer;
-  transition: all var(--transition-fast) var(--ease);
-}
-
-.pagination__btn:hover:not(:disabled) {
-  background: var(--color-bg-hover);
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
-.pagination__btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.pagination__info {
-  font-size: 0.875rem;
-  color: var(--color-text-light);
-  font-weight: 500;
-}
-
 /* Адаптивность */
 @media (max-width: 768px) {
   .filters__group {
@@ -587,78 +471,6 @@ const prevPage = () => {
 
   .select-wrapper {
     min-width: auto;
-  }
-
-  .table th,
-  .table td {
-    padding: var(--spacing-2);
-  }
-}
-
-@media (max-width: 640px) {
-  /* Мобильная версия - карточки */
-  .table,
-  .table thead,
-  .table tbody,
-  .table th,
-  .table td,
-  .table tr {
-    display: block;
-  }
-
-  .table thead {
-    display: none;
-  }
-
-  .table tr {
-    margin-bottom: var(--spacing-4);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-4);
-    background: var(--color-bg-card);
-  }
-
-  .table td {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-2) 0;
-    border-bottom: 1px dashed var(--color-border-light);
-  }
-
-  .table td:last-child {
-    border-bottom: none;
-  }
-
-  .table td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: var(--color-text-light);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    margin-right: var(--spacing-4);
-  }
-
-  .table__cell--truncate {
-    max-width: none;
-    white-space: normal;
-  }
-
-  .badge {
-    margin-left: auto;
-  }
-
-  .link {
-    margin-left: auto;
-  }
-
-  .table__cell--right {
-    text-align: left;
-  }
-
-  .table__cell--right::before {
-    text-align: left;
   }
 }
 

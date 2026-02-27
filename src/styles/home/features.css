@@ -41,7 +41,7 @@
 .feature-card__icon-wrapper {
   width: 70px;
   height: 70px;
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+  background: var(--color-primary-light);
   border-radius: 1rem;
   display: flex;
   align-items: center;
@@ -52,7 +52,7 @@
 .feature-card__icon {
   width: 36px;
   height: 36px;
-  filter: invert(29%) sepia(100%) saturate(5000%) hue-rotate(210deg);
+  color: var(--color-primary);
 }
 
 .feature-card__title {
@@ -72,7 +72,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--home-primary);
+  color: var(--color-primary);
   text-decoration: none;
   font-weight: 500;
   transition: gap 0.3s ease;

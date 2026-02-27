@@ -1,106 +1,42 @@
+/* Layout клиента: сетка, body, topbar (сайдбар в sidebar.css) */
 .client-layout {
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: 260px minmax(0, 1fr);
   min-height: 100vh;
 }
 
-.client-layout__sidebar {
-  background-color: var(--color-dark);
-  color: #e5e7eb;
-  padding: 18px 16px;
+.client-layout__body {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-}
-
-.client-layout__brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.client-layout__logo {
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  color: #f9fafb;
-}
-
-.client-layout__title {
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.client-layout__nav {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.client-layout__nav-item {
-  border: none;
-  background: transparent;
-  color: #cbd5f5;
-  text-align: left;
-  font-size: 13px;
-  padding: 6px 8px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: background-color var(--transition), color var(--transition);
-}
-
-.client-layout__nav-item--active {
-  background-color: var(--color-dark-surface);
-  color: #f9fafb;
+  min-width: 0;
 }
 
 .client-layout__main {
-  padding: 18px 22px 22px;
+  flex: 1;
+  padding: 1.25rem 1.5rem;
   background-color: var(--color-bg);
+  overflow: auto;
 }
 
+/* Topbar base styles in topbar.css */
 .client-layout__topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
+  gap: 1rem;
 }
 
-.client-layout__topbar-title {
-  margin: 0;
-  font-size: 18px;
-}
-
-.client-layout__content {
-  background-color: var(--color-bg-card);
-  border-radius: var(--radius-lg);
-  padding: 14px 16px 18px;
-  box-shadow: var(--shadow-sm);
-}
-
-.client-page {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
+/* Фильтры и таблица (клиентские страницы) */
 .client-filters {
-  border-radius: 14px;
-  padding: 10px 12px 12px;
-  background-color: var(--color-bg);
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 1rem;
+  background: var(--color-bg);
   border: 1px solid var(--color-border-light);
 }
 
 .client-filters__row {
   display: grid;
   grid-template-columns: minmax(0, 3fr) repeat(3, minmax(0, 1.4fr));
-  gap: 10px;
-  margin-bottom: 8px;
+  gap: 0.625rem;
+  margin-bottom: 0.5rem;
 }
 
 .client-filters__row--dates {
@@ -110,27 +46,10 @@
 .client-filters__group {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-}
-
-.client-filters__group--wide {
-  grid-column: span 1;
-}
-
-.client-filters__group--right {
-  align-items: flex-end;
-  justify-content: flex-end;
+  gap: 0.25rem;
 }
 
 .client-filters__label {
-  font-size: 11px;
+  font-size: 0.7rem;
   color: var(--color-text-muted);
-}
-
-.client-table__inner {
-  font-size: 12px;
-}
-
-.client-table__inner thead th {
-  background-color: var(--color-bg);
 }

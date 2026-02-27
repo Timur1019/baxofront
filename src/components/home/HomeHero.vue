@@ -66,7 +66,7 @@ const goToContacts = () => router.push('/contacts')
 <style scoped>
 .hero {
   padding: 100px 0;
-  background: linear-gradient(135deg, #1a1f3c 0%, #2a2f5c 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   color: white;
   position: relative;
   overflow: hidden;
@@ -79,7 +79,7 @@ const goToContacts = () => router.push('/contacts')
   right: -10%;
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(102, 126, 234, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -91,13 +91,13 @@ const goToContacts = () => router.push('/contacts')
   left: -10%;
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(118, 75, 162, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
 }
 
 .hero__container {
-  max-width: 1280px;
+  max-width: var(--content-max-width, 1570px);
   margin: 0 auto;
   padding: 0 40px;
   display: grid;
@@ -125,8 +125,7 @@ const goToContacts = () => router.push('/contacts')
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 3px;
-  color: #a5b4fc;
-  opacity: 0.9;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .hero__title-large {
@@ -164,7 +163,7 @@ const goToContacts = () => router.push('/contacts')
 
 .hero__btn--primary {
   background: white;
-  color: #1a1f3c;
+  color: var(--color-primary);
 }
 
 .hero__btn--primary:hover {
@@ -220,7 +219,7 @@ const goToContacts = () => router.push('/contacts')
   display: block;
   font-size: 32px;
   font-weight: 700;
-  color: #a5b4fc;
+  color: rgba(255, 255, 255, 0.95);
   margin-bottom: 8px;
 }
 
